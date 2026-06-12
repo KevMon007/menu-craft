@@ -1,0 +1,85 @@
+# ============================================================
+# MenuCraft SaaS - Docker Compose
+# Issue #6 - Configuración base de Docker
+#
+# Servicios:
+#   - api  → Backend Express (Node.js)
+#   - db   → Base de datos PostgreSQL
+#
+# Uso:
+#   Levantar:  docker compose up --build
+#   Detener:   docker compose down
+#   Limpiar:   docker compose down -v  (elimina volúmenes)
+# ============================================================
+
+services:
+
+  # ─── Servicio: API (Backend Express) ─────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development        # Usa la etapa de desarrollo con nodemon
+    container_name: menucraft_api
+    restart: unless-stopped
+    ports:
+      - "3000:3000"              # Host:Contenedor
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      FRONTEND_URL: http://localhost:5173
+      # Base de datos — apunta al servicio "db" dentro de la red Docker
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-menucraft_user}
+      DB_PASS: ${DB_PASS:-menucraft_password}
+      DB_NAME: ${DB_NAME:-menucraft_db}
+      # JWT
+      JWT_SECRET: ${JWT_SECRET:-dev_secret_cambia_en_produccion}
+      JWT_EXPIRES_IN: 8h
+    volumes:
+      - .:/app                   # Monta el código fuente (hot reload con nodemon)
+      - /app/node_modules        # Evita sobreescribir node_modules del contenedor
+    depends_on:
+      db:
+        condition: service_healthy  # Espera a que PostgreSQL esté listo
+    networks:
+      - menucraft_network
+
+
+  # ─── Servicio: DB (PostgreSQL) ────────────────────────────
+  # Issue #6 nota: incluido aunque vacío para preparar todo para la BD
+  db:
+    image: postgres:16-alpine
+    container_name: menucraft_db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"              # Expuesto para poder conectar con DBeaver / pgAdmin localmente
+    environment:
+      POSTGRES_USER: ${DB_USER:-menucraft_user}
+      POSTGRES_PASSWORD: ${DB_PASS:-menucraft_password}
+      POSTGRES_DB: ${DB_NAME:-menucraft_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data   # Persistencia entre reinicios
+      # Scripts SQL de inicialización (se ejecutan una sola vez al crear el volumen)
+      # - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-menucraft_user} -d ${DB_NAME:-menucraft_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - menucraft_network
+
+
+# ─── Volúmenes ────────────────────────────────────────────────
+volumes:
+  postgres_data:
+    name: menucraft_postgres_data
+
+
+# ─── Red interna ─────────────────────────────────────────────
+networks:
+  menucraft_network:
+    name: menucraft_network
+    driver: bridge

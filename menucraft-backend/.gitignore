@@ -1,0 +1,24 @@
+# ─── Dependencias ────────────────────────────────────────────
+node_modules/
+
+# ─── Variables de Entorno (NUNCA subir al repo) ───────────────
+# Issue #5 - Subtarea 2: .env explícitamente ignorado
+.env
+.env.local
+.env.production
+
+# ─── Logs ────────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+
+# ─── Cobertura de Tests ───────────────────────────────────────
+coverage/
+
+# ─── Build ───────────────────────────────────────────────────
+dist/
+
+# ─── OS / IDE ────────────────────────────────────────────────
+.DS_Store
+.vscode/
+*.swp
