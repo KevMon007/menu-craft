@@ -20,7 +20,7 @@ Plataforma web multi-inquilino (SaaS) para que restaurantes creen menús digital
 ## Clonar repositorio
 
 ```bash
-git clone https://github.com/TU_USUARIO/menucraft-saas.git
+git clone https://github.com/KevMon007/menu-craft.git
 cd menucraft-saas
 ```
 
