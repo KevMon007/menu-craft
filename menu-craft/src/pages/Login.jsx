@@ -1,4 +1,10 @@
+import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+
 function Login() {
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <div className="min-h-screen flex">
       {/* Panel izquierdo */}
@@ -57,28 +63,38 @@ function Login() {
           </p>
 
           <form className="mt-8 space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Correo electrónico
-              </label>
+            <div className="relative">
+              <Mail
+                size={18}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              />
 
               <input
                 type="email"
                 placeholder="tu@restaurante.com"
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-orange-500"
+                className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-3 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200"
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Contraseña
-              </label>
+            <div className="relative">
+              <Lock
+                size={18}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              />
 
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="********"
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-orange-500"
+                className="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-3 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200"
               />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
 
             <div className="flex justify-end">
@@ -96,6 +112,18 @@ function Login() {
             >
               Iniciar sesión
             </button>
+
+            <div className="mt-6 text-center">
+              <span className="text-gray-600">
+                ¿No tienes cuenta?
+              </span>{" "}
+              <Link
+                to="/register"
+                className="text-orange-600 font-medium hover:text-orange-700"
+              >
+                Regístrate gratis
+              </Link>
+            </div>
           </form>
         </div>
       </div>
