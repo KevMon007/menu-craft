@@ -1,5 +1,5 @@
-function Home() {
-  return (
+function App() {
+     return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100">
       <div className="rounded-2xl bg-white p-8 shadow-lg text-center">
         <h1 className="text-4xl font-bold text-gray-800">
@@ -11,6 +11,6 @@ function Home() {
       </div>
     </div>
   );
-}
+ }
 
-export default Home;
+export default App;
