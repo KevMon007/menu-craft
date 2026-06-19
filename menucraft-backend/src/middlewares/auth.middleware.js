@@ -6,8 +6,8 @@ const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET;
 
 const verifyToken = (req, res, next) => {
-  // Leer token desde cookie httpOnly
-  const token = req.cookies?.token;
+  // Leer token desde cookie httpOnly o desde Authorization header
+  const token = req.cookies?.token || req.headers.authorization?.replace('Bearer ', '');
 
   if (!token) {
     return res.status(401).json({ error: 'Acceso no autorizado. Token no provisto' });

@@ -242,12 +242,12 @@
       "name": "Public Menu",
       "item": [
         {
-          "name": "Get Menu by Restaurant",
+          "name": "Get Menu by Slug",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:3000/api/menu/:restaurant_id",
+              "raw": "http://localhost:3000/api/menu/:slug",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -256,17 +256,17 @@
               "path": [
                 "api",
                 "menu",
-                ":restaurant_id"
+                ":slug"
               ],
               "variable": [
                 {
-                  "key": "restaurant_id",
-                  "value": "1",
-                  "description": "ID del restaurante"
+                  "key": "slug",
+                  "value": "tacos-el-kevin",
+                  "description": "Slug del restaurante"
                 }
               ]
             },
-            "description": "Obtener el menú público de un restaurante (sin autenticación requerida)"
+            "description": "Obtener el menú público de un restaurante por slug (sin autenticación requerida)"
           },
           "response": []
         }

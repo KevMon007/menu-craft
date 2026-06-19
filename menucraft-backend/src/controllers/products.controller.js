@@ -114,4 +114,34 @@ const deleteProduct = async (req, res) => {
   }
 };
 
-module.exports = { createProduct, updateProduct, deleteProduct };
+// ─── GET /api/products ────────────────────────────────────────
+const getProducts = async (req, res) => {
+  const { restaurante_id } = req.usuario;
+  const { categoria_id } = req.query;
+
+  try {
+    let query = `
+      SELECT p.id, p.categoria_id, c.nombre AS categoria_nombre,
+             p.nombre, p.descripcion, p.precio, p.url_foto, p.disponible, p.updated_at
+      FROM platillos p
+      JOIN categorias c ON c.id = p.categoria_id
+      WHERE p.restaurante_id = $1
+    `;
+    const params = [restaurante_id];
+
+    if (categoria_id) {
+      query += ' AND p.categoria_id = $2';
+      params.push(categoria_id);
+    }
+
+    query += ' ORDER BY c.orden ASC, c.nombre ASC, p.nombre ASC';
+
+    const result = await pool.query(query, params);
+    return res.status(200).json(result.rows);
+  } catch (err) {
+    console.error('[Products] Error en getProducts:', err.message);
+    return res.status(500).json({ error: 'Error interno del servidor' });
+  }
+};
+
+module.exports = { getProducts, createProduct, updateProduct, deleteProduct };

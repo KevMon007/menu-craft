@@ -75,4 +75,24 @@ const deleteCategory = async (req, res) => {
   }
 };
 
-module.exports = { createCategory, updateCategory, deleteCategory };
+// ─── GET /api/categories ──────────────────────────────────────
+const getCategories = async (req, res) => {
+  const { restaurante_id } = req.usuario;
+
+  try {
+    const result = await pool.query(
+      `SELECT id, nombre, orden
+       FROM categorias
+       WHERE restaurante_id = $1
+       ORDER BY orden ASC, nombre ASC`,
+      [restaurante_id]
+    );
+
+    return res.status(200).json(result.rows);
+  } catch (err) {
+    console.error('[Categories] Error en getCategories:', err.message);
+    return res.status(500).json({ error: 'Error interno del servidor' });
+  }
+};
+
+module.exports = { getCategories, createCategory, updateCategory, deleteCategory };
