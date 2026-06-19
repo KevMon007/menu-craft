@@ -58,7 +58,7 @@ jobs:
     - name: Verificar sintaxis del Backend
       run: |
         if [ -d "menucraft-backend/node_modules" ]; then
-          cd menucraft-backend && node -e "require('./src/app.js')"
+          cd menucraft-backend && node --check ./src/app.js
         else
           echo "No se instalaron dependencias del backend, omitiendo verificación."
         fi
