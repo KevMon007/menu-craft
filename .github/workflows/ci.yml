@@ -2,9 +2,9 @@ name: MenuCraft CI
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ develop ]
+    branches: [ main, develop ]
 
 jobs:
   build-frontend:
@@ -21,8 +21,44 @@ jobs:
 
     - name: Instalar dependencias del Frontend
       run: |
-        if [ -d "frontend" ]; then
-          npm install --prefix frontend
+        if [ -d "menu-craft" ]; then
+          npm install --prefix menu-craft
         else
-          echo "La carpeta frontend aun no existe, omitiendo temporalmente."
+          echo "La carpeta menu-craft no existe, omitiendo temporalmente."
+        fi
+
+    - name: Build del Frontend
+      run: |
+        if [ -d "menu-craft/node_modules" ]; then
+          npm run build --prefix menu-craft
+        else
+          echo "No se instalaron dependencias del frontend, omitiendo build."
+        fi
+
+  build-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout del codigo
+      uses: actions/checkout@v4
+
+    - name: Configurar Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Instalar dependencias del Backend
+      run: |
+        if [ -d "menucraft-backend" ]; then
+          npm install --prefix menucraft-backend
+        else
+          echo "La carpeta menucraft-backend no existe, omitiendo temporalmente."
+        fi
+
+    - name: Verificar sintaxis del Backend
+      run: |
+        if [ -d "menucraft-backend/node_modules" ]; then
+          cd menucraft-backend && node -e "require('./src/app.js')"
+        else
+          echo "No se instalaron dependencias del backend, omitiendo verificación."
         fi
