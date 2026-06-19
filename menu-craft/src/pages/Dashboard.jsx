@@ -4,7 +4,8 @@ import { Plus, Edit3, Trash2, Check, X, LogOut, ExternalLink } from "lucide-reac
 
 function api(path, options = {}) {
   const token = localStorage.getItem("token");
-  return fetch(path, {
+  const base = import.meta.env.VITE_API_URL || "";
+  return fetch(`${base}${path}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",

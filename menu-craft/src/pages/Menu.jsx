@@ -14,7 +14,7 @@ function Menu() {
       setError(null);
 
       try {
-        const res = await fetch(`/api/menu/${slug}`);
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/menu/${slug}`);
         const data = await res.json();
 
         if (!res.ok) {
