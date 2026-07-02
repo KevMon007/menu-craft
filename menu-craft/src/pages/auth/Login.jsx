@@ -1,7 +1,7 @@
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import AuthHero from "../components/AuthHero";
+import AuthHero from "../../components/AuthHero";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
