@@ -1,4 +1,6 @@
 function Input({
+  label,
+  name,
   type = "text",
   value,
   onChange,
@@ -6,6 +8,7 @@ function Input({
   className = "",
   disabled = false,
   icon = null,
+  error,
 }) {
   return (
     <div className="relative">
@@ -15,13 +18,23 @@ function Input({
           {icon}
         </div>
       )}
+      {label && (
+          <label
+              htmlFor={name}
+              className="mb-2 block text-sm font-medium text-gray-700"
+          >
+              {label}
+          </label>
+      )}
 
       <input
+        name={name}
+        id={name}
         type={type}
         value={value}
         disabled={disabled}
         placeholder={placeholder}
-        onChange={(e) => onChange?.(e.target.value)}
+        onChange={(e) => onChange?.(e)}
         className={`
           w-full
           rounded-xl

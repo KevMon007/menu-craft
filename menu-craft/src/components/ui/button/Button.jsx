@@ -16,6 +16,7 @@ function Button({
   children,
   variant = "primary",
   type = "button",
+  form,
   onClick,
   className = "",
   disabled = false,
@@ -23,6 +24,7 @@ function Button({
 }) {
   return (
     <button
+      form={form}
       type={type}
       disabled={disabled}
       onClick={onClick}

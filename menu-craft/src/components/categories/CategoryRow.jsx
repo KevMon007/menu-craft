@@ -1,121 +1,45 @@
-import { Badge, Button } from "../ui";
-import {
-  Pencil,
-  Lock,
-} from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
+
+import { Button } from "../ui";
 
 function CategoryRow({
   category,
   onEdit,
+  onDelete,
 }) {
   return (
-    <tr className="border-b border-gray-100 hover:bg-gray-50 transition">
+    <tr className="border-b border-gray-100 hover:bg-gray-50">
 
-      {/* Orden */}
+      <td className="px-6 py-4">
 
-      <td className="px-6 py-5">
+        {category.orden}
 
-        <div className="flex items-center gap-3">
+      </td>
 
-          <span className="text-gray-400">
-            ⋮⋮
-          </span>
+      <td className="px-6 py-4 font-medium text-slate-700">
 
-          <span className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-xs font-semibold">
-            {category.order}
-          </span>
+        {category.nombre}
+
+      </td>
+
+      <td className="px-6 py-4">
+
+        <div className="flex items-center gap-2">
+
+          <Button
+            variant="ghost"
+            icon={<Pencil size={16} />}
+            onClick={() => onEdit(category)}
+          />
+
+          <Button
+            variant="ghost"
+            icon={<Trash2 size={16} />}
+            className="text-red-600 hover:bg-red-50"
+            onClick={() => onDelete(category)}
+          />
 
         </div>
-
-      </td>
-
-      {/* Información */}
-
-      <td className="px-6 py-5">
-
-        <div className="flex items-center gap-4">
-
-          <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center text-xl">
-
-            {category.icon}
-
-          </div>
-
-          <div>
-
-            <h3 className="font-semibold text-gray-800">
-
-              {category.name}
-
-            </h3>
-
-            <p className="text-sm text-gray-500">
-
-              {category.description}
-
-            </p>
-
-          </div>
-
-        </div>
-
-      </td>
-
-      {/* Platillos */}
-
-      <td className="px-6">
-
-        <Badge variant="warning">
-            {category.products} platillos
-        </Badge>
-
-      </td>
-
-      {/* Estado */}
-
-      <td className="px-6">
-
-        <Badge variant={category.active ? "success" : "danger"}>
-          {category.active ? "Activa" : "Inactiva"}
-        </Badge>
-
-      </td>
-
-      {/* Protegida */}
-
-      <td className="px-6">
-
-        {category.protected && (
-
-          <Lock size={16} className="text-gray-400" />
-
-        )}
-
-      </td>
-
-      {/* Editar */}
-
-      <td className="px-6">
-
-        <Button
-        variant="ghost"
-        icon={<Pencil size={16} />}
-        onClick={() => onEdit(category)}
-        >
-        Editar
-        </Button>
-
-      </td>
-
-      {/* Switch */}
-
-      <td className="px-6">
-
-        <input
-          type="checkbox"
-          checked={category.active}
-          readOnly
-        />
 
       </td>
 
