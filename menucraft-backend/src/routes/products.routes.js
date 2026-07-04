@@ -1,16 +1,16 @@
 // src/routes/products.routes.js
 const { Router } = require('express');
 const { verifyToken } = require('../middlewares/auth.middleware');
-const { validateProduct } = require('../middlewares/validators.middleware')
+const { validateProduct } = require('../middlewares/validators.middleware');
 const { getProducts, createProduct, updateProduct, deleteProduct } = require('../controllers/products.controller');
 
 const router = Router();
 
 router.use(verifyToken);
 
-router.get('/',      getProducts);
-router.post('/',     createProduct);
-router.put('/:id',   updateProduct);
+router.get('/',       getProducts);
+router.post('/',      validateProduct, createProduct);
+router.put('/:id',    validateProduct, updateProduct);
 router.delete('/:id', deleteProduct);
 
 module.exports = router;
