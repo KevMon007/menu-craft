@@ -1,6 +1,7 @@
 // src/routes/products.routes.js
 const { Router } = require('express');
 const { verifyToken } = require('../middlewares/auth.middleware');
+const { validateProduct } = require('../middlewares/validators.middleware')
 const { getProducts, createProduct, updateProduct, deleteProduct } = require('../controllers/products.controller');
 
 const router = Router();
