@@ -37,6 +37,7 @@ services:
       # JWT
       JWT_SECRET: ${JWT_SECRET:-dev_secret_cambia_en_produccion}
       JWT_EXPIRES_IN: 8h
+      
     volumes:
       - .:/app                   # Monta el código fuente (hot reload con nodemon)
       - /app/node_modules        # Evita sobreescribir node_modules del contenedor
