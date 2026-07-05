@@ -5,6 +5,7 @@
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const multer = require('multer');
 
 const app = express();
 
@@ -20,8 +21,6 @@ app.use(
 );
 
 // ─── Endpoint de Salud (Issue #5 - Subtarea 1) ───────────────────────────────
-// GET /health → { status: "ok" }
-// Usado por Docker y load balancers para verificar que el servicio está vivo
 app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'ok',
@@ -32,21 +31,42 @@ app.get('/health', (req, res) => {
 
 // ─── Rutas del API ────────────────────────────────────────────────────────────
 
-app.use('/api/auth', require('./routes/auth.routes'));
+app.use('/api/auth',       require('./routes/auth.routes'));
 app.use('/api/categories', require('./routes/categories.routes'));
-app.use('/api/products', require('./routes/products.routes'));
-app.use('/api/menu', require('./routes/menu.routes'));
+app.use('/api/products',   require('./routes/products.routes'));
+app.use('/api/menu',       require('./routes/menu.routes'));
+app.use('/api/uploads',    require('./routes/upload.routes')); // Carga de imágenes (Cloudinary)
 
 // ─── Manejo de Rutas No Encontradas ──────────────────────────────────────────
 app.use((req, res) => {
   res.status(404).json({ error: 'Ruta no encontrada' });
 });
 
-// ─── Manejo Global de Errores ─────────────────────────────────────────────────
+// ─── Manejo Global de Errores (Estandarizado) ────────────────────────────────
+// Captura: AppError (operacionales), errores de Multer, y errores no controlados.
 app.use((err, req, res, next) => {
-  console.error('[Error]', err.message);
-  res.status(err.status || 500).json({
+  // Errores propios de Multer (archivo muy grande, campo inesperado, etc.)
+  if (err instanceof multer.MulterError) {
+    const mensaje = err.code === 'LIMIT_FILE_SIZE'
+      ? 'La imagen supera el tamaño máximo permitido (5MB)'
+      : `Error al procesar el archivo: ${err.message}`;
+    console.error(`[Error][Multer] ${err.code} - ${err.message}`);
+    return res.status(400).json({ error: mensaje });
+  }
+
+  const statusCode = err.statusCode || 500;
+  const isOperational = err.isOperational || false;
+
+  // Solo logueamos el stack completo si es un error inesperado (bug real, no operacional)
+  if (!isOperational) {
+    console.error('[Error inesperado]', err);
+  } else {
+    console.error(`[Error] ${statusCode} - ${err.message}`);
+  }
+
+  res.status(statusCode).json({
     error: err.message || 'Error interno del servidor',
+    ...(err.details ? { details: err.details } : {}),
   });
 });
 
