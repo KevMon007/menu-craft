@@ -1,5 +1,4 @@
-import {
-  LayoutDashboard,
+import { LayoutDashboard,
   UtensilsCrossed,
   FolderOpen,
   QrCode,
@@ -7,16 +6,47 @@ import {
   Settings,
   LogOut,
 } from "lucide-react";
+import { NavLink, useNavigate } from "react-router-dom";
+import logo from "../../assets/Logo.png";
 
 function Sidebar() {
+
+  const restaurantSlug = localStorage.getItem("restaurantSlug");
+  const navigate = useNavigate();
+  const handleLogout = () => {
+
+      localStorage.removeItem("token");
+      localStorage.removeItem("restaurantSlug");
+
+      navigate("/login", {
+          replace: true,
+      });
+
+  };
+
   return (
     <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
 
       {/* Logo */}
-      <div className="h-20 flex items-center justify-center border-b">
-        <h1 className="text-2xl font-bold text-orange-500">
+      <div
+        className="h-20 px-6 flex items-center
+          gap-3
+          bg-[#1F1D36]
+          border-b
+          border-[#2E2C47]
+        "
+      >
+
+        <img
+          src={logo}
+          alt="MenuCraft"
+          className="h-14 w-auto object-contain"
+        />
+
+        <h1 className="text-2xl font-bold tracking-tight text-white">
           MenuCraft
         </h1>
+
       </div>
 
       {/* Navegación */}
@@ -25,35 +55,118 @@ function Sidebar() {
         <ul className="space-y-2">
 
           <li>
-            <button className="w-full flex items-center gap-3 rounded-lg px-4 py-3 hover:bg-orange-100 transition">
+            <NavLink
+                to="/dashboard"
+                className={({isActive})=>
+
+                    `
+                    flex
+                    items-center
+                    gap-3
+                    rounded-lg
+                    px-4
+                    py-3
+                    transition
+
+                    ${
+                        isActive
+                        ? "bg-orange-50 border-l-4 border-orange-500 text-orange-600 font-semibold"
+                        : "hover:bg-gray-100 text-gray-700"
+                    }
+                    `
+                }
+            >
               <LayoutDashboard size={20} />
               Dashboard
-            </button>
+            </NavLink>
           </li>
 
           <li>
-            <button className="w-full flex items-center gap-3 rounded-lg px-4 py-3 hover:bg-orange-100 transition">
+            <NavLink
+              to="/products"
+              className={({isActive})=>
+
+                `
+                flex
+                items-center
+                gap-3
+                rounded-lg
+                px-4
+                py-3
+                transition
+
+                ${
+                    isActive
+                      ? "bg-orange-50 border-l-4 border-orange-500 text-orange-600 font-semibold"
+                      : "hover:bg-gray-100 text-gray-700"
+                }
+                `
+              }
+            >
               <UtensilsCrossed size={20} />
               Platillos
-            </button>
+            </NavLink>
           </li>
 
           <li>
-            <button className="w-full flex items-center gap-3 rounded-lg px-4 py-3 hover:bg-orange-100 transition">
+            <NavLink
+              to="/categories"
+              className={({isActive})=>
+
+                `
+                flex
+                items-center
+                gap-3
+                rounded-lg
+                px-4
+                py-3
+                transition
+
+                ${
+                    isActive
+                      ? "bg-orange-50 border-l-4 border-orange-500 text-orange-600 font-semibold"
+                      : "hover:bg-gray-100 text-gray-700"
+                }
+                `
+              }
+            >
               <FolderOpen size={20} />
               Categorías
-            </button>
+            </NavLink>
           </li>
 
           <li>
-            <button className="w-full flex items-center gap-3 rounded-lg px-4 py-3 hover:bg-orange-100 transition">
+            <NavLink
+              to={`/menu/${restaurantSlug}`}
+              className={({isActive})=>
+
+                `
+                flex
+                items-center
+                gap-3
+                rounded-lg
+                px-4
+                py-3
+                transition
+
+                ${
+                    isActive
+                        ? "bg-orange-50 border-l-4 border-orange-500 text-orange-600 font-semibold"
+                        : "hover:bg-gray-100 text-gray-700"
+                }
+                `
+              }
+            >
               <QrCode size={20} />
               Menú Público
-            </button>
+            </NavLink>
           </li>
 
           <li>
-            <button className="w-full flex items-center gap-3 rounded-lg px-4 py-3 hover:bg-orange-100 transition">
+            <button
+              onClick={() => alert("Próximamente")}
+              className="w-full flex items-center gap-3 rounded-lg px-4 py-3 hover:bg-gray-100 transition"
+            >
               <ChartColumn size={20} />
               Estadísticas
             </button>
@@ -71,7 +184,9 @@ function Sidebar() {
           Configuración
         </button>
 
-        <button className="w-full flex items-center gap-3 rounded-lg px-4 py-3 text-red-500 hover:bg-red-100 transition">
+        <button
+           onClick={handleLogout}
+           className="w-full flex items-center gap-3 rounded-lg px-4 py-3 text-red-500 hover:bg-red-100 transition">
           <LogOut size={20} />
           Cerrar sesión
         </button>

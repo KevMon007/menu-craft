@@ -1,39 +1,134 @@
-function Navbar({
-  title = "Dashboard",
-  subtitle = "Bienvenido a MenuCraft",
-}) {
-  return (
-    <header className="h-20 bg-white border-b border-gray-200 flex items-center justify-between px-8">
+import { useLocation } from "react-router-dom";
+import { Bell } from "lucide-react";
 
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800">
-          {title}
+function Navbar() {
+  const location = useLocation();
+
+  const pages = {
+    "/dashboard": {
+      title: "Dashboard",
+      subtitle: "Resumen general de tu restaurante",
+    },
+
+    "/categories": {
+      title: "Categorías",
+      subtitle: "Organiza los platillos de tu menú",
+    },
+
+    "/products": {
+      title: "Platillos",
+      subtitle: "Administra los platillos de tu restaurante",
+    },
+  };
+
+  const currentPage =
+    pages[location.pathname] || {
+        title: "MenuCraft",
+        subtitle: "",
+    };
+
+  return (
+    <header
+    className="
+        h-20
+        bg-[#1F1D36]
+        border-b
+        border-[#2E2C47]
+        flex
+        items-center
+        justify-between
+        px-10
+    "
+>
+
+    <div>
+
+        <h1 className="text-xl font-semibold text-white">
+
+            {currentPage.title}
+
         </h1>
 
-        <p className="text-gray-500 text-sm">
-          {subtitle}
-        </p>
-      </div>
+        <p className="text-sm text-gray-300 mt-1">
 
-      <div className="flex items-center gap-4">
+            {currentPage.subtitle}
+
+        </p>
+
+    </div>
+
+    <div className="flex items-center gap-6">
+
+        <button
+            className="
+                relative
+                rounded-lg
+                p-2
+                text-gray-300
+                hover:bg-[#2A2843]
+                hover:text-white
+                transition
+            "
+        >
+
+            <Bell size={20}/>
+
+            <span
+                className="
+                    absolute
+                    -top-1
+                    -right-1
+                    h-4
+                    w-4
+                    rounded-full
+                    bg-orange-500
+                    text-[10px]
+                    text-white
+                    flex
+                    items-center
+                    justify-center
+                "
+            >
+                3
+            </span>
+
+        </button>
 
         <div className="text-right">
-          <p className="font-semibold">
-            Restaurante Demo
-          </p>
 
-          <p className="text-sm text-gray-500">
-            Administrador
-          </p>
+            <p className="font-medium text-white">
+
+                Restaurante Demo
+
+            </p>
+
+            <p className="text-xs text-gray-400">
+
+                Administrador
+
+            </p>
+
         </div>
 
-        <div className="h-11 w-11 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold">
-          R
+        <div
+            className="
+                h-10
+                w-10
+                rounded-full
+                bg-orange-500
+                text-white
+                flex
+                items-center
+                justify-center
+                font-semibold
+            "
+        >
+            R
         </div>
 
-      </div>
+    </div>
 
-    </header>
+</header>
   );
 }
 
