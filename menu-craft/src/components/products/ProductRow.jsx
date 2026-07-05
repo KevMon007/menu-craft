@@ -11,22 +11,22 @@ function ProductRow({
 
       <td className="px-4 py-4">
         <img
-          src={product.image}
-          alt={product.name}
+          src={product.url_foto}
+          alt={product.nombre}
           className="w-14 h-14 rounded-lg object-cover"
         />
       </td>
 
       <td className="px-4 py-4 font-medium">
-        {product.name}
+        {product.nombre}
       </td>
 
       <td className="px-4 py-4">
-        {product.category}
+        {product.categoria_nombre}
       </td>
 
       <td className="px-4 py-4">
-        ${product.price}
+        ${product.precio}
       </td>
 
       <td className="px-4 py-4">
@@ -40,13 +40,13 @@ function ProductRow({
             font-medium
 
             ${
-              product.available
+              product.disponible
                 ? "bg-green-100 text-green-700"
                 : "bg-red-100 text-red-700"
             }
           `}
         >
-          {product.available
+          {product.disponible
             ? "Disponible"
             : "No disponible"}
         </span>

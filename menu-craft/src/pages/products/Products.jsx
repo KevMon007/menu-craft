@@ -1,80 +1,231 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PageHeader } from "../../components/shared";
+import { Modal, Button } from "../../components/ui";
+import { getProducts, createProduct, updateProduct, deleteProduct } from "../../services/productService";
+import { getCategories } from "../../services/categoryService";
 
 import ProductStats from "../../components/products/ProductStats";
 import ProductFilters from "../../components/products/ProductFilters";
 import ProductTable from "../../components/products/ProductTable";
-
-import burger from "../../assets/burger.jpg";
-import salad from "../../assets/salad.jpg";
-import lemonade from "../../assets/lemonade.jpg";
+import ProductForm from "../../components/products/ProductForm";
 
 function Products() {
 
   const [search, setSearch] = useState("");
-
   const [category, setCategory] = useState("");
-
   const [status, setStatus] = useState("");
-
+  const [products, setProducts] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
+  const [categories, setCategories] = useState([]);
   const stats = {
-    total: 10,
-    available: 8,
-    unavailable: 2,
+
+      total: products.length,
+
+      available: products.filter(
+          p => p.disponible
+      ).length,
+
+      unavailable: products.filter(
+          p => !p.disponible
+      ).length,
+
   };
+  const [values, setValues] = useState({
+    nombre: "",
+    categoria_id: "",
+    descripcion: "",
+    precio: "",
+    url_foto: "",
+    disponible: true,
+  });
 
-  const categories = [
-    {
-      id: 1,
-      name: "Entradas",
-    },
-    {
-      id: 2,
-      name: "Platillos fuertes",
-    },
-    {
-      id: 3,
-      name: "Postres",
-    },
-    {
-      id: 4,
-      name: "Bebidas",
-    },
-  ];
+  const handleSubmit = async () => {
 
-  const handleCreateProduct = () => {
-    console.log("Abrir modal");
-  };
+    try {
 
-  const products = [
-    {
-    id:1,
-    image: burger,
-    name:"Hamburguesa",
-    category:"Fuertes",
-    price:180,
-    available:true
-    },
+      if (!values.nombre.trim()) {
+        alert("El nombre del platillo es obligatorio.");
+        return;
+      }
 
-    {
-    id:2,
-    image: salad,
-    name:"Ensalada César",
-    category:"Entradas",
-    price:120,
-    available:true
-    },
+      if (!values.categoria_id) {
+        alert("Selecciona una categoría.");
+        return;
+      }
 
-    {
-    id:3,
-    image: lemonade,
-    name:"Limonada",
-    category:"Bebidas",
-    price:45,
-    available:false
+      if (!values.precio || Number(values.precio) < 0) {
+        alert("El precio debe ser mayor o igual a 0.");
+        return;
+      }
+
+      const payload = {
+        nombre: values.nombre.trim(),
+        categoria_id: Number(values.categoria_id),
+        descripcion: values.descripcion.trim(),
+        precio: Number(values.precio),
+        url_foto: values.url_foto.trim(),
+        disponible: values.disponible,
+      };
+
+      if (editingProduct) {
+
+        await updateProduct(editingProduct.id, payload);
+
+      } else {
+
+        await createProduct(payload);
+
+      }
+
+      await loadProducts();
+
+      handleCloseModal();
+
+    } catch (error) {
+
+      console.error("Error al guardar platillo:", error);
+
     }
 
-    ];
+  };
+
+  const loadCategories = async () => {
+
+    try {
+
+      const data = await getCategories();
+
+      setCategories(data);
+
+    } catch (error) {
+
+      console.error(error);
+
+    }
+
+  };
+
+  const handleChange = (e) => {
+
+      const { name, value } = e.target;
+
+      setValues((prev) => ({
+          ...prev,
+          [name]: value,
+      }));
+
+  };
+
+  const loadProducts = async () => {
+
+    try {
+
+        const data = await getProducts();
+
+        setProducts(data);
+
+    } catch(error){
+
+        console.error(error);
+
+    }
+
+  };
+
+  const confirmDelete = async () => {
+
+      await deleteProduct(productToDelete.id);
+
+      await loadProducts();
+
+      setDeleteModalOpen(false);
+
+  };
+
+  const handleCreateProduct = () => {
+
+      setEditingProduct(null);
+
+      setValues({
+          nombre: "",
+          categoria_id: "",
+          descripcion: "",
+          precio: "",
+          url_foto: "",
+          disponible: true,
+      });
+
+      setIsModalOpen(true);
+
+  };
+
+  const handleEdit = (product) => {
+
+      setEditingProduct(product);
+
+      setValues({
+
+          nombre: product.nombre,
+
+          categoria_id: product.categoria_id,
+
+          descripcion: product.descripcion || "",
+
+          precio: product.precio,
+
+          url_foto: product.url_foto || "",
+
+          disponible: product.disponible,
+
+      });
+
+      setIsModalOpen(true);
+
+  };
+
+  const handleDelete = (product) => {
+
+      setProductToDelete(product);
+
+      setDeleteModalOpen(true);
+
+  };
+
+  const cancelDelete = () => {
+
+    setDeleteModalOpen(false);
+
+    setProductToDelete(null);
+
+};
+
+  const handleCloseModal = () => {
+
+    setValues({
+      nombre: "",
+      categoria_id: "",
+      descripcion: "",
+      precio: "",
+      url_foto: "",
+      disponible: true,
+    });
+
+    setEditingProduct(null);
+
+    setIsModalOpen(false);
+
+  };
+
+  useEffect(() => {
+
+      loadProducts();
+
+      loadCategories();
+
+  }, []);
 
   return (
     <div>
@@ -102,9 +253,87 @@ function Products() {
 
       <ProductTable
           products={products}
-          onEdit={(product)=>console.log(product)}
-          onDelete={(id)=>console.log(id)}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
       />
+
+      <Modal
+        open={isModalOpen}
+        title={
+          editingProduct
+            ? "Editar platillo"
+            : "Nuevo platillo"
+        }
+        onClose={handleCloseModal}
+        footer={
+          <>
+            <Button
+              variant="secondary"
+              onClick={handleCloseModal}
+            >
+              Cancelar
+            </Button>
+
+            <Button
+              form="product-form"
+              type="submit"
+            >
+              {editingProduct ? "Actualizar" : "Guardar"}
+            </Button>
+          </>
+        }
+      >
+
+        <ProductForm
+          values={values}
+          categories={categories}
+          onChange={handleChange}
+          onSubmit={handleSubmit}
+        />
+
+      </Modal>
+
+      <Modal
+          open={deleteModalOpen}
+          title="Eliminar platillo"
+          onClose={cancelDelete}
+          size="sm"
+          footer={
+              <>
+                  <Button
+                      variant="secondary"
+                      onClick={cancelDelete}
+                  >
+                      Cancelar
+                  </Button>
+
+                  <Button
+                      variant="danger"
+                      onClick={confirmDelete}
+                  >
+                      Eliminar
+                  </Button>
+              </>
+          }
+      >
+
+          <p className="text-gray-600">
+
+              ¿Seguro que deseas eliminar el platillo{" "}
+
+              <strong>
+
+                  {productToDelete?.nombre}
+
+              </strong>
+
+              ?
+
+          </p>
+
+      </Modal>
+
+
     </div>
   );
 }

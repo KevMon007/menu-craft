@@ -1,12 +1,10 @@
-function Select({
+function Textarea({
   label,
   name,
   value,
   onChange,
-  options = [],
-  valueKey = "value",
-  labelKey = "label",
-  placeholder = "Selecciona una opción",
+  placeholder = "",
+  rows = 4,
   className = "",
   disabled = false,
 }) {
@@ -22,12 +20,14 @@ function Select({
         </label>
       )}
 
-      <select
+      <textarea
         id={name}
         name={name}
         value={value}
-        disabled={disabled}
         onChange={onChange}
+        rows={rows}
+        disabled={disabled}
+        placeholder={placeholder}
         className={`
           w-full
           rounded-xl
@@ -38,6 +38,7 @@ function Select({
           py-3
           text-sm
           outline-none
+          resize-none
           transition-all
           duration-200
           focus:border-orange-500
@@ -47,23 +48,10 @@ function Select({
           disabled:cursor-not-allowed
           ${className}
         `}
-      >
-        <option value="">
-          {placeholder}
-        </option>
-
-        {options.map((option) => (
-          <option
-            key={option[valueKey]}
-            value={option[valueKey]}
-          >
-            {option[labelKey]}
-          </option>
-        ))}
-      </select>
+      />
 
     </div>
   );
 }
 
-export default Select;
+export default Textarea;
