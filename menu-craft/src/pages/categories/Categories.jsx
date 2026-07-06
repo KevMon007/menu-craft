@@ -99,6 +99,12 @@ function Categories() {
     setCategoryToDelete(category);
   };
 
+  const cancelDelete = () => {
+
+      setCategoryToDelete(null);
+
+  };
+
   const loadCategories = async () => {
     try {
       const data = await getCategories();
@@ -117,7 +123,7 @@ function Categories() {
 
           await loadCategories();
 
-          setCategoryToDelete(null);
+          cancelDelete();
 
       } catch (error) {
 
@@ -198,7 +204,7 @@ function Categories() {
 
             message={`¿Seguro que deseas eliminar "${categoryToDelete?.nombre}"?`}
 
-            onClose={() => setDeleteCategory(null)}
+            onClose={cancelDelete}
 
             onConfirm={confirmDelete}
 

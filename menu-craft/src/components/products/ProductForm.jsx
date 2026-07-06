@@ -5,10 +5,12 @@ import {
 } from "../ui";
 
 function ProductForm({
-  values,
-  categories,
-  onChange,
-  onSubmit,
+    values,
+    categories,
+    previewImage,
+    onImageChange,
+    onChange,
+    onSubmit,
 }) {
 
   const handleSubmit = (e) => {
@@ -61,13 +63,80 @@ function ProductForm({
         placeholder="180.00"
       />
 
-      <Input
-        label="URL de la imagen"
-        name="url_foto"
-        value={values.url_foto}
-        onChange={onChange}
-        placeholder="https://..."
-      />
+      <div className="space-y-2">
+
+          <label
+              className="
+                  block
+                  text-sm
+                  font-medium
+                  text-gray-700
+              "
+          >
+              Imagen
+          </label>
+
+          <div className="space-y-3">
+
+              <label
+                  htmlFor="product-image"
+                  className="
+                      flex
+                      cursor-pointer
+                      items-center
+                      justify-center
+                      gap-2
+                      rounded-xl
+                      border-2
+                      border-dashed
+                      border-orange-300
+                      bg-orange-50
+                      px-4
+                      py-6
+                      text-sm
+                      font-medium
+                      text-orange-600
+                      transition
+                      hover:bg-orange-100
+                  "
+              >
+
+                  📷
+
+                  Seleccionar imagen
+
+              </label>
+
+              <input
+                  id="product-image"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  className="hidden"
+                  onChange={onImageChange}
+              />
+
+          </div>
+          
+          {
+              previewImage && (
+
+                  <img
+                      src={previewImage}
+                      alt="Vista previa"
+                      className="
+                          mt-4
+                          h-40
+                          w-full
+                          rounded-xl
+                          border
+                          object-cover
+                      "
+                  />
+
+              )
+          }
+
+      </div>
 
       <div className="flex items-center gap-3">
 

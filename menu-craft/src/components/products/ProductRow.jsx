@@ -11,7 +11,7 @@ function ProductRow({
 
       <td className="px-4 py-4">
         <img
-          src={product.url_foto}
+          src={product.url_foto || undefined}
           alt={product.nombre}
           className="w-14 h-14 rounded-lg object-cover"
         />
@@ -66,7 +66,7 @@ function ProductRow({
         <Button
             variant="ghost"
             icon={<Trash2 size={18}/>}
-            onClick={() => onDelete(product.id)}
+            onClick={() => onDelete(product)}
             className="text-red-600 hover:bg-red-50 hover:text-red-700"
         />
 

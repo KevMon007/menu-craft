@@ -3,6 +3,7 @@ import { PageHeader } from "../../components/shared";
 import { Modal, Button } from "../../components/ui";
 import { getProducts, createProduct, updateProduct, deleteProduct } from "../../services/productService";
 import { getCategories } from "../../services/categoryService";
+import { uploadProductImage } from "../../services/uploadService";
 
 import ProductStats from "../../components/products/ProductStats";
 import ProductFilters from "../../components/products/ProductFilters";
@@ -42,6 +43,9 @@ function Products() {
     disponible: true,
   });
 
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [previewImage, setPreviewImage] = useState("");
+
   const handleSubmit = async () => {
 
     try {
@@ -61,13 +65,22 @@ function Products() {
         return;
       }
 
+      let imageUrl = values.url_foto;
+      if (selectedImage) {
+
+          const upload = await uploadProductImage(selectedImage);
+
+          imageUrl = upload.url_foto;
+
+      }
+
       const payload = {
-        nombre: values.nombre.trim(),
-        categoria_id: Number(values.categoria_id),
-        descripcion: values.descripcion.trim(),
-        precio: Number(values.precio),
-        url_foto: values.url_foto.trim(),
-        disponible: values.disponible,
+          nombre: values.nombre.trim(),
+          categoria_id: Number(values.categoria_id),
+          descripcion: values.descripcion.trim(),
+          precio: Number(values.precio),
+          url_foto: imageUrl,
+          disponible: values.disponible,
       };
 
       if (editingProduct) {
@@ -182,6 +195,9 @@ function Products() {
 
       });
 
+      setPreviewImage(product.url_foto || "");
+      setSelectedImage(null);
+
       setIsModalOpen(true);
 
   };
@@ -216,6 +232,23 @@ function Products() {
     setEditingProduct(null);
 
     setIsModalOpen(false);
+
+    setSelectedImage(null);
+    setPreviewImage("");
+
+  };
+
+  const handleImageChange = (e) => {
+
+    const file = e.target.files[0];
+
+      if (!file) return;
+
+      setSelectedImage(file);
+
+      setPreviewImage(
+          URL.createObjectURL(file)
+      );
 
   };
 
@@ -285,10 +318,12 @@ function Products() {
       >
 
         <ProductForm
-          values={values}
-          categories={categories}
-          onChange={handleChange}
-          onSubmit={handleSubmit}
+            values={values}
+            categories={categories}
+            previewImage={previewImage}
+            onImageChange={handleImageChange}
+            onChange={handleChange}
+            onSubmit={handleSubmit}
         />
 
       </Modal>
