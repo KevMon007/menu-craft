@@ -62,7 +62,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data   # Persistencia entre reinicios
       # Scripts SQL de inicialización (se ejecutan una sola vez al crear el volumen)
-      # - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-menucraft_user} -d ${DB_NAME:-menucraft_db}"]
       interval: 10s

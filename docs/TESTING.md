@@ -29,7 +29,7 @@
 - Validación de datos: precio positivo, campos obligatorios no vacíos
 
 #### 1.3 Backend - Vista Pública del Menú
-- Obtener menú completo por restaurante (GET `/api/menu/:restaurant_id`)
+- Obtener menú completo por restaurante (GET `/api/menu/:slug`)
 - Menú organizado por categorías
 - Platillos mostrados reflejan estado actual de disponibilidad
 - Acceso sin autenticación (público)
@@ -76,7 +76,7 @@
 | `/api/products` | POST | Platillo creado | Precio inválido, campos vacíos, sin JWT | Backend Dev |
 | `/api/products/:id` | PUT | Platillo actualizado | ID inexistente, datos inválidos | Backend Dev |
 | `/api/products/:id` | DELETE | Platillo eliminado | ID inexistente, sin JWT | Backend Dev |
-| `/api/menu/:restaurant_id` | GET | Menú retornado con categorías | Restaurant ID inválido | Backend Dev |
+| `/api/menu/:slug` | GET | Menú retornado con categorías | Slug inválido (404) | Backend Dev |
 
 **Colección Postman a crear:**
 ```
@@ -253,7 +253,7 @@ El MVP se considera **LISTO PARA PRODUCCIÓN** cuando:
 | Registro de restaurante | POST `/api/auth/register` | T-001 | Pendiente |
 | Login restaurante | POST `/api/auth/login` | T-002 | Pendiente |
 | CRUD de platillos | POST/PUT/DELETE `/api/products` | T-003 to T-005 | Pendiente |
-| Menú público | GET `/api/menu/:id` | T-006 | Pendiente |
+| Menú público | GET `/api/menu/:slug` | T-006 | Pendiente |
 | Disponibilidad en tiempo real | PUT `/api/products/:id` + Frontend | T-007 | Pendiente |
 | UX responsiva mobile | Frontend View | T-008 | Pendiente |
 | Código QR funcional | Frontend + Backend | T-009 | Pendiente |
