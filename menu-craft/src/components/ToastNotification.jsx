@@ -29,11 +29,15 @@ export const NotificationProvider = ({ children }) => {
   };
 
   return (
-    <NotificationContext.Provider value={{ showNotification, closeNotification }}>
+    <NotificationContext.Provider
+      value={{ showNotification, closeNotification }}
+    >
       {children}
-      
+
       {notification && (
-        <div className={`fixed bottom-5 right-5 flex items-center p-4 border-l-4 rounded shadow-lg max-w-sm z-50 transition-all ${styles[notification.type]}`}>
+        <div
+          className={`fixed bottom-5 right-5 flex items-center p-4 border-l-4 rounded shadow-lg max-w-sm z-50 transition-all ${styles[notification.type]}`}
+        >
           <div className="flex-1 mr-3 text-sm font-semibold">
             {notification.type === 'loading' && '⏳ '}
             {notification.type === 'success' && '✅ '}
@@ -41,7 +45,10 @@ export const NotificationProvider = ({ children }) => {
             {notification.message}
           </div>
           {notification.type !== 'loading' && (
-            <button onClick={closeNotification} className="text-gray-500 hover:text-gray-800 text-xs font-bold px-1">
+            <button
+              onClick={closeNotification}
+              className="text-gray-500 hover:text-gray-800 text-xs font-bold px-1"
+            >
               ✕
             </button>
           )}
