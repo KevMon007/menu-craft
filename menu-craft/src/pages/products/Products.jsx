@@ -21,6 +21,8 @@ function Products() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
   const [categories, setCategories] = useState([]);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [imageUploadError, setImageUploadError] = useState("");
   const stats = {
 
       total: products.length,
@@ -68,9 +70,27 @@ function Products() {
       let imageUrl = values.url_foto;
       if (selectedImage) {
 
-          const upload = await uploadProductImage(selectedImage);
+          try {
 
-          imageUrl = upload.url_foto;
+              setIsUploadingImage(true);
+
+              setImageUploadError("");
+
+              const upload = await uploadProductImage(selectedImage);
+
+              imageUrl = upload.url_foto;
+
+          } catch (error) {
+
+              setImageUploadError(error.message);
+
+              return;
+
+          } finally {
+
+              setIsUploadingImage(false);
+
+          }
 
       }
 
@@ -212,11 +232,11 @@ function Products() {
 
   const cancelDelete = () => {
 
-    setDeleteModalOpen(false);
+      setDeleteModalOpen(false);
 
-    setProductToDelete(null);
+      setProductToDelete(null);
 
-};
+  };
 
   const handleCloseModal = () => {
 
@@ -235,11 +255,13 @@ function Products() {
 
     setSelectedImage(null);
     setPreviewImage("");
+    setImageUploadError("");
 
   };
 
   const handleImageChange = (e) => {
 
+    setImageUploadError("");
     const file = e.target.files[0];
 
       if (!file) return;
@@ -303,6 +325,7 @@ function Products() {
             <Button
               variant="secondary"
               onClick={handleCloseModal}
+              disabled={isUploadingImage}
             >
               Cancelar
             </Button>
@@ -310,8 +333,15 @@ function Products() {
             <Button
               form="product-form"
               type="submit"
+              disabled={isUploadingImage}
             >
-              {editingProduct ? "Actualizar" : "Guardar"}
+              {
+                  isUploadingImage
+                      ? "Cargando imagen..."
+                      : editingProduct
+                          ? "Actualizar"
+                          : "Guardar"
+              }
             </Button>
           </>
         }
@@ -324,6 +354,8 @@ function Products() {
             onImageChange={handleImageChange}
             onChange={handleChange}
             onSubmit={handleSubmit}
+            isUploadingImage={isUploadingImage}
+            imageUploadError={imageUploadError}
         />
 
       </Modal>

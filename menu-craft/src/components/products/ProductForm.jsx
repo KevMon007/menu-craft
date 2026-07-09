@@ -11,6 +11,8 @@ function ProductForm({
     onImageChange,
     onChange,
     onSubmit,
+    isUploadingImage,
+    imageUploadError,
 }) {
 
   const handleSubmit = (e) => {
@@ -80,7 +82,7 @@ function ProductForm({
 
               <label
                   htmlFor="product-image"
-                  className="
+                  className={`
                       flex
                       cursor-pointer
                       items-center
@@ -98,22 +100,45 @@ function ProductForm({
                       text-orange-600
                       transition
                       hover:bg-orange-100
-                  "
+                      ${
+                          isUploadingImage
+                              ? "opacity-50 cursor-not-allowed"
+                              : "cursor-pointer hover:bg-orange-100"
+                      }
+                  `}
               >
 
-                  📷
+                {
+                    isUploadingImage 
 
-                  Seleccionar imagen
+                            ? "⏳ Cargando imagen..."
+                            : "📷 Seleccionar imagen"
+                }
+
 
               </label>
 
               <input
                   id="product-image"
                   type="file"
+                  disabled={isUploadingImage}
                   accept="image/png,image/jpeg,image/webp"
                   className="hidden"
                   onChange={onImageChange}
               />
+
+
+              {
+                  imageUploadError && (
+
+                      <p className="text-sm text-red-600">
+
+                          ❌ {imageUploadError}
+
+                      </p>
+
+                  )
+              }
 
           </div>
           
