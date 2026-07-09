@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { UtensilsCrossed, AlertCircle } from "lucide-react";
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { UtensilsCrossed, AlertCircle } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || "";
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 function Menu() {
   const { slug } = useParams();
@@ -20,14 +20,14 @@ function Menu() {
         const data = await res.json();
 
         if (!res.ok) {
-          setError(data?.error || "Restaurante no encontrado");
+          setError(data?.error || 'Restaurante no encontrado');
           setLoading(false);
           return;
         }
 
         setMenu(data);
       } catch {
-        setError("Error de red, intenta de nuevo");
+        setError('Error de red, intenta de nuevo');
       } finally {
         setLoading(false);
       }
