@@ -1,7 +1,8 @@
 import { User, Mail, Lock, Eye, EyeOff, Store } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import AuthHero from "../components/AuthHero";
+import AuthHero from "../../components/AuthHero";
+import { useNotification } from "../../components/ToastNotification"; // Importación del hook
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
@@ -13,9 +14,9 @@ function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { showNotification } = useNotification(); // Inicialización
 
   function generarSlug(nombre) {
     return nombre
@@ -29,26 +30,26 @@ function Register() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setError(null);
 
     if (!restaurantName.trim()) {
-      setError("El nombre del restaurante es obligatorio");
+      showNotification("El nombre del restaurante es obligatorio", "error");
       return;
     }
     if (!email.trim()) {
-      setError("El correo electrónico es obligatorio");
+      showNotification("El correo electrónico es obligatorio", "error");
       return;
     }
     if (password.length < 8) {
-      setError("La contraseña debe tener al menos 8 caracteres");
+      showNotification("La contraseña debe tener al menos 8 caracteres", "error");
       return;
     }
     if (password !== confirmPassword) {
-      setError("Las contraseñas no coinciden");
+      showNotification("Las contraseñas no coinciden", "error");
       return;
     }
 
     setLoading(true);
+    showNotification("Creando cuenta de restaurante...", "info");
 
     try {
       const res = await fetch(`${API_URL}/api/auth/register`, {
@@ -66,14 +67,15 @@ function Register() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data?.error || "Error al crear la cuenta");
+        showNotification(data?.error || "Error al crear la cuenta", "error");
         setLoading(false);
         return;
       }
 
+      showNotification("¡Cuenta creada con éxito! Inicia sesión.", "success");
       navigate("/login", { replace: true });
     } catch {
-      setError("Error de red, intenta de nuevo");
+      showNotification("Error de red, intenta de nuevo", "error");
       setLoading(false);
     }
   }
@@ -236,10 +238,6 @@ function Register() {
                 </button>
               </div>
             </div>
-
-            {error && (
-              <p className="text-sm text-red-600">{error}</p>
-            )}
 
             <button
               type="submit"

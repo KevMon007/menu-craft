@@ -1,14 +1,19 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Edit3, Trash2, Check, X, LogOut, ExternalLink } from "lucide-react";
+import { Plus, Edit3, Trash2, Check, X, LogOut, ExternalLink, Image } from "lucide-react";
+import { useNotification } from "../components/ToastNotification"; // Importación del hook
 
 function api(path, options = {}) {
   const token = localStorage.getItem("token");
   const base = import.meta.env.VITE_API_URL || "";
+
+  // Si mandamos un FormData (para la imagen), dejamos que el navegador ponga el Content-Type correcto automáticamente
+  const isFormData = options.body instanceof FormData;
+
   return fetch(`${base}${path}`, {
     ...options,
     headers: {
-      "Content-Type": "application/json",
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
@@ -17,11 +22,11 @@ function api(path, options = {}) {
 
 function Dashboard() {
   const navigate = useNavigate();
+  const { showNotification } = useNotification(); // Inicialización
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [selectedCat, setSelectedCat] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   const [newCatName, setNewCatName] = useState("");
   const [editingCat, setEditingCat] = useState(null);
@@ -29,11 +34,14 @@ function Dashboard() {
 
   const [showProductForm, setShowProductForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+
   const [prodForm, setProdForm] = useState({
     nombre: "",
     descripcion: "",
     precio: "",
     categoria_id: "",
+    imagen_url: "", // Nuevo campo para la url de imagen subida
   });
 
   async function loadCategories() {
@@ -43,7 +51,7 @@ function Dashboard() {
       const data = await res.json();
       setCategories(data);
     } catch (err) {
-      setError(err.message);
+      showNotification(err.message, "error");
     }
   }
 
@@ -54,7 +62,7 @@ function Dashboard() {
       const data = await res.json();
       setProducts(data);
     } catch (err) {
-      setError(err.message);
+      showNotification(err.message, "error");
     }
   }
 
@@ -79,43 +87,78 @@ function Dashboard() {
   async function handleAddCategory(e) {
     e.preventDefault();
     if (!newCatName.trim()) return;
+    showNotification("Creando categoría...", "info");
     try {
       const res = await api("/api/categories", {
         method: "POST",
         body: JSON.stringify({ nombre: newCatName.trim() }),
       });
       if (!res.ok) throw new Error("Error al crear categoría");
+      showNotification("Categoría creada con éxito", "success");
       await loadCategories();
       setNewCatName("");
     } catch (err) {
-      setError(err.message);
+      showNotification(err.message, "error");
     }
   }
 
   async function handleUpdateCategory(id) {
     if (!editCatName.trim()) return;
+    showNotification("Actualizando categoría...", "info");
     try {
       const res = await api(`/api/categories/${id}`, {
         method: "PUT",
         body: JSON.stringify({ nombre: editCatName.trim() }),
       });
       if (!res.ok) throw new Error("Error al actualizar categoría");
+      showNotification("Categoría actualizada", "success");
       await loadCategories();
       setEditingCat(null);
     } catch (err) {
-      setError(err.message);
+      showNotification(err.message, "error");
     }
   }
 
   async function handleDeleteCategory(id) {
     if (!confirm("¿Eliminar esta categoría?")) return;
+    showNotification("Eliminando categoría...", "info");
     try {
       const res = await api(`/api/categories/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Error al eliminar categoría");
+      showNotification("Categoría eliminada", "success");
       if (selectedCat === id) handleSelectCategory(null);
       await loadCategories();
     } catch (err) {
-      setError(err.message);
+      showNotification(err.message, "error");
+    }
+  }
+
+  // --- NUEVA FUNCIÓN: CARGA DE IMAGEN ---
+  async function handleImageUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("imagen", file);
+
+    setUploadingImage(true);
+    showNotification("Subiendo imagen al servidor...", "info");
+
+    try {
+      const res = await api("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error("Error al subir la imagen");
+      const data = await res.json();
+
+      setProdForm((f) => ({ ...f, imagen_url: data.url }));
+      showNotification("Imagen procesada y subida con éxito", "success");
+    } catch (err) {
+      showNotification(err.message, "error");
+    } finally {
+      setUploadingImage(false);
     }
   }
 
@@ -126,7 +169,10 @@ function Dashboard() {
       descripcion: prodForm.descripcion.trim(),
       precio: parseFloat(prodForm.precio),
       categoria_id: parseInt(prodForm.categoria_id) || selectedCat,
+      imagen_url: prodForm.imagen_url, // Se envía la URL de la imagen
     };
+
+    showNotification(editingProduct ? "Actualizando platillo..." : "Guardando platillo...", "info");
 
     try {
       if (editingProduct) {
@@ -135,41 +181,50 @@ function Dashboard() {
           body: JSON.stringify(body),
         });
         if (!res.ok) throw new Error("Error al actualizar platillo");
+        showNotification("Platillo actualizado correctamente", "success");
       } else {
         const res = await api("/api/products", {
           method: "POST",
           body: JSON.stringify(body),
         });
         if (!res.ok) throw new Error("Error al crear platillo");
+        showNotification("Platillo agregado al menú", "success");
       }
       await loadProducts(selectedCat);
       resetProductForm();
     } catch (err) {
-      setError(err.message);
+      showNotification(err.message, "error");
     }
   }
 
   async function handleToggleDisponible(product) {
+    showNotification("Cambiando estado...", "info");
     try {
       const res = await api(`/api/products/${product.id}`, {
         method: "PUT",
         body: JSON.stringify({ disponible: !product.disponible }),
       });
       if (!res.ok) throw new Error("Error al cambiar disponibilidad");
+      showNotification(
+        product.disponible ? "Platillo marcado como no disponible" : "Platillo disponible",
+        "success"
+      );
       await loadProducts(selectedCat);
     } catch (err) {
-      setError(err.message);
+      showNotification(err.message, "error");
     }
   }
 
   async function handleDeleteProduct(id) {
     if (!confirm("¿Eliminar este platillo?")) return;
+    showNotification("Eliminando platillo...", "info");
     try {
       const res = await api(`/api/products/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Error al eliminar platillo");
+      showNotification("Platillo removido", "success");
       await loadProducts(selectedCat);
     } catch (err) {
-      setError(err.message);
+      showNotification(err.message, "error");
     }
   }
 
@@ -180,6 +235,7 @@ function Dashboard() {
       descripcion: product.descripcion || "",
       precio: product.precio.toString(),
       categoria_id: product.categoria_id.toString(),
+      imagen_url: product.imagen_url || "",
     });
     setShowProductForm(true);
   }
@@ -187,13 +243,14 @@ function Dashboard() {
   function resetProductForm() {
     setShowProductForm(false);
     setEditingProduct(null);
-    setProdForm({ nombre: "", descripcion: "", precio: "", categoria_id: "" });
+    setProdForm({ nombre: "", descripcion: "", precio: "", categoria_id: "", imagen_url: "" });
   }
 
   const slug = localStorage.getItem("restaurantSlug");
 
   function handleLogout() {
     localStorage.removeItem("token");
+    showNotification("Sesión cerrada correctamente", "success");
     navigate("/login", { replace: true });
   }
 
@@ -202,7 +259,7 @@ function Dashboard() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <p className="text-gray-500">Cargando...</p>
+        <p className="text-gray-500">Cargando dashboard...</p>
       </div>
     );
   }
@@ -216,6 +273,7 @@ function Dashboard() {
             <a
               href={`/menu/${slug}`}
               target="_blank"
+              rel="noreferrer"
               className="flex items-center gap-1.5 text-sm text-orange-600 hover:text-orange-700 transition"
             >
               <ExternalLink size={18} />
@@ -234,15 +292,6 @@ function Dashboard() {
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-8 space-y-8">
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm flex items-center justify-between">
-            <span>{error}</span>
-            <button onClick={() => setError(null)}>
-              <X size={16} />
-            </button>
-          </div>
-        )}
-
         {/* ─── Categorías ─────────────── */}
         <section>
           <h2 className="text-xl font-semibold text-slate-800 mb-4">Categorías</h2>
@@ -278,7 +327,7 @@ function Dashboard() {
                 onClick={() => handleSelectCategory(cat.id)}
               >
                 {editingCat === cat.id ? (
-                  <div className="flex gap-2 flex-1 mr-2">
+                  <div className="flex gap-2 flex-1 mr-2" onClick={(e) => e.stopPropagation()}>
                     <input
                       value={editCatName}
                       onChange={(e) => setEditCatName(e.target.value)}
@@ -364,107 +413,106 @@ function Dashboard() {
                 <input
                   value={prodForm.nombre}
                   onChange={(e) => setProdForm((f) => ({ ...f, nombre: e.target.value }))}
-                  placeholder="Nombre del platillo *"
-                  className="border border-gray-300 rounded-lg px-4 py-2 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200"
+                  placeholder="Nombre del platillo"
+                  className="border border-gray-300 rounded px-3 py-2 text-sm outline-none focus:border-orange-500"
                   required
                 />
                 <input
                   value={prodForm.precio}
                   onChange={(e) => setProdForm((f) => ({ ...f, precio: e.target.value }))}
+                  placeholder="Precio ($)"
                   type="number"
                   step="0.01"
-                  min="0"
-                  placeholder="Precio *"
-                  className="border border-gray-300 rounded-lg px-4 py-2 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200"
+                  className="border border-gray-300 rounded px-3 py-2 text-sm outline-none focus:border-orange-500"
                   required
                 />
-                <div className="md:col-span-2">
-                  <input
-                    value={prodForm.descripcion}
-                    onChange={(e) => setProdForm((f) => ({ ...f, descripcion: e.target.value }))}
-                    placeholder="Descripción (opcional)"
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200"
-                  />
-                </div>
+              </div>
+              <textarea
+                value={prodForm.descripcion}
+                onChange={(e) => setProdForm((f) => ({ ...f, descripcion: e.target.value }))}
+                placeholder="Descripción corta del platillo..."
+                className="w-full border border-gray-300 rounded px-3 py-2 text-sm outline-none focus:border-orange-500 h-20 resize-none"
+              />
+
+              {/* INPUT PARA CARGA DE IMAGEN (OBSERVACIÓN REVISOR) */}
+              <div className="border border-dashed border-gray-300 rounded px-3 py-4 flex flex-col items-center justify-center bg-gray-50">
+                {prodForm.imagen_url ? (
+                  <div className="text-center">
+                    <p className="text-xs text-green-600 font-medium mb-1">✓ Imagen lista</p>
+                    <img src={prodForm.imagen_url} alt="Vista previa" className="h-16 w-16 object-cover rounded mx-auto border" />
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <Image className="mx-auto text-gray-400 mb-1" size={24} />
+                    <span className="text-xs text-gray-500 block">Formatos permitidos: JPG, PNG</span>
+                  </div>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  disabled={uploadingImage}
+                  className="mt-2 text-xs text-gray-600 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 cursor-pointer"
+                />
               </div>
 
-              <div className="flex gap-2 justify-end">
+              <div className="flex justify-end gap-2 text-sm">
                 <button
                   type="button"
                   onClick={resetProductForm}
-                  className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 transition"
+                  className="px-3 py-1.5 border rounded text-gray-500 hover:bg-gray-50"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="bg-orange-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-700 transition disabled:opacity-50"
-                  disabled={!prodForm.nombre.trim() || !precioValido}
+                  disabled={!precioValido || uploadingImage}
+                  className="px-3 py-1.5 bg-orange-600 text-white rounded hover:bg-orange-700 transition disabled:opacity-50"
                 >
-                  {editingProduct ? "Guardar cambios" : "Agregar platillo"}
+                  {editingProduct ? "Actualizar" : "Guardar"}
                 </button>
               </div>
             </form>
           )}
 
-          {selectedCat && products.length === 0 && !showProductForm && (
+          {/* Listado de Platillos */}
+          {selectedCat && products.length === 0 && (
             <p className="text-gray-400 text-sm">No hay platillos en esta categoría</p>
           )}
 
-          <div className="grid gap-3">
+          <div className="grid gap-3 md:grid-cols-2">
             {products.map((prod) => (
-              <div
-                key={prod.id}
-                className="bg-white rounded-lg border border-gray-200 px-4 py-3 flex items-center justify-between"
-              >
-                <div className="flex-1 min-w-0 mr-4">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-slate-800">{prod.nombre}</span>
-                    <span
-                      className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                        prod.disponible
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
-                      }`}
+              <div key={prod.id} className="bg-white border rounded-xl p-4 flex gap-4 shadow-sm relative items-start">
+                {prod.imagen_url && (
+                  <img src={prod.imagen_url} alt={prod.nombre} className="w-16 h-16 object-cover rounded-lg border flex-shrink-0" />
+                )}
+                <div className="flex-1 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-slate-800">{prod.nombre}</h3>
+                    <span className="font-bold text-orange-600">${parseFloat(prod.precio).toFixed(2)}</span>
+                  </div>
+                  <p className="text-gray-500 text-xs line-clamp-2">{prod.descripcion || "Sin descripción"}</p>
+
+                  <div className="flex gap-2 pt-2">
+                    <button
+                      onClick={() => startEditProduct(prod)}
+                      className="text-xs flex items-center gap-1 text-gray-600 hover:text-orange-600"
+                    >
+                      <Edit3 size={12} /> Editar
+                    </button>
+                    <button
+                      onClick={() => handleDeleteProduct(prod.id)}
+                      className="text-xs flex items-center gap-1 text-gray-400 hover:text-red-600"
+                    >
+                      <Trash2 size={12} /> Eliminar
+                    </button>
+                    <button
+                      onClick={() => handleToggleDisponible(prod)}
+                      className={`text-xs ml-auto font-medium ${prod.disponible ? "text-green-600" : "text-gray-400"}`}
                     >
                       {prod.disponible ? "Disponible" : "Agotado"}
-                    </span>
+                    </button>
                   </div>
-
-                  {prod.descripcion && (
-                    <p className="text-sm text-gray-500 mt-0.5 truncate">{prod.descripcion}</p>
-                  )}
-
-                  <p className="text-sm font-semibold text-orange-600 mt-0.5">
-                    ${parseFloat(prod.precio).toFixed(2)}
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    onClick={() => handleToggleDisponible(prod)}
-                    className={`text-sm px-3 py-1 rounded-lg border transition ${
-                      prod.disponible
-                        ? "border-red-300 text-red-600 hover:bg-red-50"
-                        : "border-green-300 text-green-600 hover:bg-green-50"
-                    }`}
-                  >
-                    {prod.disponible ? "Agotar" : "Disponible"}
-                  </button>
-
-                  <button
-                    onClick={() => startEditProduct(prod)}
-                    className="text-gray-400 hover:text-orange-600 transition"
-                  >
-                    <Edit3 size={16} />
-                  </button>
-
-                  <button
-                    onClick={() => handleDeleteProduct(prod.id)}
-                    className="text-gray-400 hover:text-red-600 transition"
-                  >
-                    <Trash2 size={16} />
-                  </button>
                 </div>
               </div>
             ))}
