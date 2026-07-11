@@ -1,8 +1,8 @@
 import { User, Mail, Lock, Eye, EyeOff, Store } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import AuthHero from "../components/AuthHero";
-import { useNotification } from "../components/ToastNotification"; // Importación del hook
+import AuthHero from "../../components/AuthHero";
+import { useNotification } from "../../components/ToastNotification"; // Importación del hook
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
