@@ -10,9 +10,7 @@ if (!process.env.DATABASE_URL) {
 
 if (missing.length > 0) {
   console.error(`[MenuCraft API] Faltan variables de entorno requeridas: ${missing.join(', ')}`);
-  if (process.env.NODE_ENV === 'production') {
-    process.exit(1);
-  }
+  process.exit(1);
 }
 
 const app = require('./app');
