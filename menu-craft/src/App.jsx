@@ -5,7 +5,7 @@ import Register from './pages/auth/Register';
 import Dashboard from './pages/dashboard/Dashboard';
 import Products from "./pages/products/Products";
 import Categories from "./pages/categories/Categories";
-import Menu from './pages/Menu';
+import Menu from './pages/menu/Menu';
 
 import PrivateRoute from './components/PrivateRoute';
 import AdminLayout from "./layouts/AdminLayout";

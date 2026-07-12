@@ -1,0 +1,62 @@
+import ProductCard from "./ProductCard";
+
+function ProductGrid({ categories }) {
+
+    return (
+
+        <div className="space-y-8">
+
+            {categories.map((category) => (
+
+                <section key={category.id}>
+
+                    <h2
+                        className="
+                            mb-4
+                            border-b-2
+                            border-orange-500
+                            pb-2
+                            text-xl
+                            font-semibold
+                            text-slate-800
+                        "
+                    >
+                        {category.nombre}
+                    </h2>
+
+                    {
+                        category.platillos.length === 0 && (
+
+                            <p className="text-sm text-gray-400">
+
+                                Sin platillos disponibles
+
+                            </p>
+
+                        )
+                    }
+
+                    <div className="space-y-3">
+
+                        {category.platillos.map((product) => (
+
+                            <ProductCard
+                                key={product.id}
+                                product={product}
+                            />
+
+                        ))}
+
+                    </div>
+
+                </section>
+
+            ))}
+
+        </div>
+
+    );
+
+}
+
+export default ProductGrid;
