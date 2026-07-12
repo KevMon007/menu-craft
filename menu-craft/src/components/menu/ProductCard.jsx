@@ -4,22 +4,46 @@ function ProductCard({ product }) {
 
         <div
             className="
+                 flex
+                h-full
+                flex-col
+                overflow-hidden
+                rounded-2xl
                 bg-white
-                rounded-lg
-                border
-                border-gray-200
-                p-4
-                flex
-                justify-between
-                gap-4
+                shadow-sm
+                transition
+                hover:-translate-y-1
+                hover:shadow-lg
             "
         >
 
             <div className="flex-1 min-w-0">
 
+                {
+                    product.url_foto && (
+
+                        <img
+                            src={product.url_foto}
+                            alt={product.nombre}
+                            className="
+                                h-44
+                                w-full
+                                rounded-xl
+                                object-cover
+                            "
+                        />
+
+                    )
+                }
+
+                <div className="flex
+                                flex-1
+                                flex-col
+                                p-5">
+
                 <h3 className="font-medium text-slate-800">
 
-                    {product.nombre}
+                                    {product.nombre}
 
                 </h3>
 
@@ -35,15 +59,17 @@ function ProductCard({ product }) {
                     )
                 }
 
-            </div>
+                <div className="mt-auto pt-5 text-right">
 
-            <div className="shrink-0 text-right">
-
-                <span className="font-semibold text-orange-600 text-lg">
+                <span className="text-xl font-bold text-orange-500">
 
                     ${parseFloat(product.precio).toFixed(2)}
 
                 </span>
+
+                </div>
+
+                </div>
 
             </div>
 

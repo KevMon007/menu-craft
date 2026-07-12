@@ -4,26 +4,35 @@ function MenuHero({ restaurant }) {
 
     return (
 
-        <header className="bg-white shadow-sm border-b border-gray-200">
+        <header
+            className="
+                bg-gradient-to-br from-slate-950 via-slate-900 to-orange-950
+                px-6
+                pt-16
+                pb-20
+                text-center
+                text-white
+            "
+        >
 
-            <div className="max-w-2xl mx-auto px-4 py-6 text-center">
+            <div className="max-w-2xl mx-auto">
 
-                <div className="flex items-center justify-center gap-2 text-orange-600 mb-2">
+                <div className="flex items-center justify-center gap-2 text-orange-500 mb-2">
 
-                    <UtensilsCrossed size={24} />
-
-                    <h1 className="text-2xl font-bold text-slate-900">
-
+                    <h1 className="text-3xl font-bold">
                         {restaurant.nombre}
-
                     </h1>
 
                 </div>
 
-                <p className="text-gray-500 text-sm">
-
+                <p
+                    className=" 
+                        mt-2
+                        text-sm
+                        text-slate-300
+                    "
+                >
                     Nuestro menú
-
                 </p>
 
             </div>
