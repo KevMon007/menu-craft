@@ -11,9 +11,11 @@ const API_URL = import.meta.env.VITE_API_URL || "";
 
 function Menu() {
   const { slug } = useParams();
+
   const [menu, setMenu] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState("all");
 
   useEffect(() => {
     async function loadMenu() {
@@ -69,12 +71,20 @@ function Menu() {
         />
 
       <main className="max-w-2xl mx-auto px-4 py-8 space-y-8">
+
+        <CategoryTabs
+            categories={menu.categorias}
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+        />
+
         {
             menu.categorias.length === 0
                 ? <EmptyMenu />
                 : (
                     <ProductGrid
                         categories={menu.categorias}
+                        selectedCategory={selectedCategory}
                     />
                 )
         }

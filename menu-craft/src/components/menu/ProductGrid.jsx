@@ -1,12 +1,21 @@
 import ProductCard from "./ProductCard";
 
-function ProductGrid({ categories }) {
+function ProductGrid({ categories,
+                    selectedCategory, }) {
+
+    const visibleCategories =
+    selectedCategory === "all"
+        ? categories
+        : categories.filter(
+            (category) => category.id === selectedCategory
+        );
+
 
     return (
 
         <div className="space-y-8">
 
-            {categories.map((category) => (
+            {visibleCategories.map((category) => (
 
                 <section key={category.id}>
 
