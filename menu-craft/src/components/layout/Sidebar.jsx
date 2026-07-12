@@ -8,20 +8,20 @@ import { LayoutDashboard,
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import logo from "../../assets/Logo.png";
+import { useAuth } from "../../context/AuthContext"; // Importamos el contexto
 
 function Sidebar() {
-
   const restaurantSlug = localStorage.getItem("restaurantSlug");
   const navigate = useNavigate();
-  const handleLogout = () => {
+  const { logout } = useAuth(); //  Extraemos el método logout global
 
-      localStorage.removeItem("token");
+  const handleLogout = () => {
+      logout(); // Esto borra el token de localStorage y limpia el estado global de React
       localStorage.removeItem("restaurantSlug");
 
       navigate("/login", {
           replace: true,
       });
-
   };
 
   return (

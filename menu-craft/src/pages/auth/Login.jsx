@@ -2,7 +2,8 @@ import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthHero from "../../components/AuthHero";
-import { useNotification } from "../../components/ToastNotification"; // Importación del hook
+import { useNotification } from "../../components/ToastNotification";
+import { useAuth } from "../../context/AuthContext"; // 👈 1. Importamos el contexto de autenticación
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
@@ -12,7 +13,8 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { showNotification } = useNotification(); // Inicialización
+  const { showNotification } = useNotification();
+  const { login } = useAuth(); // 👈 2. Extraemos la función login del contexto
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -32,7 +34,10 @@ function Login() {
         return;
       }
       if (data.token) {
-        localStorage.setItem("token", data.token);
+        // 👈 3. Reemplazamos el localStorage directo por nuestra función del contexto
+        // Esto guarda el token en localStorage e informa a toda la app que la sesión inició
+        login(data.token);
+
         localStorage.setItem("restaurantSlug", data.usuario?.slug || "");
         showNotification("¡Bienvenido de nuevo!", "success");
         navigate("/dashboard", { replace: true });

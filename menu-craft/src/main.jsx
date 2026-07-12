@@ -2,14 +2,16 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App.jsx';
-// Importamos tu proveedor de notificaciones globales
 import { NotificationProvider } from './components/ToastNotification.jsx';
+// Importamos el proveedor de autenticación que creamos
+import { AuthProvider } from './context/AuthContext.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    {/* Envolvemos la aplicación entera aquí */}
-    <NotificationProvider>
-      <App />
-    </NotificationProvider>
+    <AuthProvider>
+      <NotificationProvider>
+        <App />
+      </NotificationProvider>
+    </AuthProvider>
   </StrictMode>,
 );
