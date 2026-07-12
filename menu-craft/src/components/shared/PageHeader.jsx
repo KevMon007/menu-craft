@@ -20,12 +20,18 @@ function PageHeader({
         </p>
       </div>
 
-      <Button
-        icon={<Plus size={18} />}
-        onClick={onAction}
-      >
-        {buttonText}
-      </Button>
+      {
+        buttonText && onAction && (
+
+          <Button
+            icon={<Plus size={18} />}
+            onClick={onAction}
+          >
+            {buttonText}
+          </Button>
+
+        )
+      }
 
     </div>
   );

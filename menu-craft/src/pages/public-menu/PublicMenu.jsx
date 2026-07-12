@@ -1,20 +1,113 @@
 import { useNavigate } from "react-router-dom";
-import { Eye, Globe } from "lucide-react";
+import {
+    Eye,
+    Globe,
+    QrCode,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 
+import MenuView from "../../components/menu/MenuView";
 import { PageHeader } from "../../components/shared";
 import { Card, Button } from "../../components/ui";
+import PhoneFrame from "../../components/menu/PhoneFrame";
+
+const API_URL = import.meta.env.VITE_API_URL || "";
 
 function PublicMenu() {
 
     const navigate = useNavigate();
 
-    const restaurantSlug = localStorage.getItem("restaurantSlug");
+    const restaurantSlug =
+        localStorage.getItem("restaurantSlug");
+
+    const [menu, setMenu] = useState(null);
+
+    const [loading, setLoading] = useState(true);
+
+    const [selectedCategory, setSelectedCategory] = useState("all");
+
+    const [error, setError] = useState(null);
 
     const handlePreview = () => {
 
-        navigate(`/menu/${restaurantSlug}?preview=true`);
+        window.open(
+            `/menu/${restaurantSlug}?preview=true`,
+            "_blank"
+        );
 
     };
+
+    useEffect(() => {
+
+        async function loadMenu() {
+
+            setLoading(true);
+
+            setError(null);
+
+            try {
+
+                const res = await fetch(
+                    `${API_URL}/api/menu/${restaurantSlug}`
+                );
+
+                const data = await res.json();
+
+                if (!res.ok) {
+
+                    setError(
+                        data?.error || "Restaurante no encontrado"
+                    );
+
+                    setLoading(false);
+
+                    return;
+
+                }
+
+                setMenu(data);
+
+            } catch {
+
+                setError(
+                    "Error de red, intenta de nuevo"
+                );
+
+            } finally {
+
+                setLoading(false);
+
+            }
+
+        }
+
+        loadMenu();
+
+    }, [restaurantSlug]);
+
+    if (loading) {
+
+        return (
+            <div className="flex justify-center py-20">
+
+                Cargando vista previa...
+
+            </div>
+        );
+
+    }
+
+    if (error || !menu) {
+
+        return (
+            <div className="flex justify-center py-20 text-red-500">
+
+                {error || "No fue posible cargar el menú."}
+
+            </div>
+        );
+
+    }
 
     return (
 
@@ -22,85 +115,144 @@ function PublicMenu() {
 
             <PageHeader
                 title="Menú Público"
-                description="Visualiza el menú exactamente como lo verán tus clientes."
+                description="Visualiza y administra la publicación de tu menú digital."
             />
 
-            <Card className="p-8">
+            <div
+                className="
+                    mt-8
+                    grid
+                    items-start
+                    gap-6
+                    lg:grid-cols-[380px_1fr]
+                "
+            >
 
-                <div className="space-y-3">
+                {/* Columna izquierda */}
 
-                    <div className="flex items-center gap-3">
+                <div className="space-y-6">
 
-                        <Eye className="text-orange-500" />
+                    <Card className="p-8">
 
-                        <h2 className="text-xl font-semibold">
+                        <div className="space-y-4">
 
-                            Vista previa
+                            <div className="flex items-center gap-3">
 
-                        </h2>
+                                <Globe className="text-orange-500" />
 
-                    </div>
+                                <h2 className="text-xl font-semibold">
 
-                    <p className="text-gray-500">
+                                    Estado del menú
 
-                        Antes de compartir el código QR puedes revisar cómo se mostrará tu menú público.
+                                </h2>
 
-                    </p>
+                            </div>
 
-                    <Button
-                        onClick={handlePreview}
-                    >
+                            <span
+                                className="
+                                    inline-flex
+                                    rounded-full
+                                    bg-green-100
+                                    px-3
+                                    py-1
+                                    text-sm
+                                    font-medium
+                                    text-green-700
+                                "
+                            >
 
-                        Ver menú público
+                                Publicado
 
-                    </Button>
+                            </span>
+
+                            <p className="text-gray-500">
+
+                                Próximamente podrás activar o desactivar la publicación del menú desde este apartado.
+
+                            </p>
+
+                        </div>
+
+                    </Card>
+
+                    <Card className="p-8">
+
+                        <div className="space-y-4">
+
+                            <div className="flex items-center gap-3">
+
+                                <QrCode className="text-orange-500" />
+
+                                <h2 className="text-xl font-semibold">
+
+                                    Código QR
+
+                                </h2>
+
+                            </div>
+
+                            <p className="text-gray-500">
+
+                                Próximamente podrás generar, descargar y compartir el código QR de tu restaurante.
+
+                            </p>
+
+                        </div>
+
+                    </Card>
 
                 </div>
 
-            </Card>
+                {/* Columna derecha */}
 
-            <Card className="p-8 mt-6">
+                <Card className="h-full p-8">
 
-                <div className="space-y-3">
+                    <div className="mb-8 text-center">
 
-                    <div className="flex items-center gap-3">
+                        <h2 className="text-2xl font-bold text-slate-900">
 
-                        <Globe className="text-orange-500" />
-
-                        <h2 className="text-xl font-semibold">
-
-                            Estado del menú
+                            Vista previa del menú
 
                         </h2>
 
+                        <p className="mt-2 text-gray-500">
+
+                            Así visualizarán el menú los clientes al escanear el código QR.
+
+                        </p>
+
                     </div>
 
-                    <span
-                        className="
-                            inline-flex
-                            rounded-full
-                            bg-green-100
-                            px-3
-                            py-1
-                            text-sm
-                            font-medium
-                            text-green-700
-                        "
-                    >
+                    <div className="flex justify-center">
 
-                        Publicado
+                        <PhoneFrame>
 
-                    </span>
+                            <MenuView
+                                menu={menu}
+                                preview={true}
+                                selectedCategory={selectedCategory}
+                                onSelectCategory={setSelectedCategory}
+                            />
 
-                    <p className="text-gray-500">
+                        </PhoneFrame>
 
-                        Próximamente podrás activar o desactivar la publicación del menú desde este apartado.
+                    </div>
 
-                    </p>
+                    <div className="mt-8 flex justify-center">
 
-                </div>
+                        <Button
+                            onClick={handlePreview}
+                        >
 
-            </Card>
+                            Abrir en una nueva pestaña
+
+                        </Button>
+
+                    </div>
+
+                </Card>
+
+            </div>
 
         </div>
 

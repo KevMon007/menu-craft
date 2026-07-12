@@ -59,6 +59,7 @@ function ProductGrid({ categories,
                             <ProductCard
                                 key={product.id}
                                 product={product}
+                                preview={preview}
                             />
 
                         ))}

@@ -1,22 +1,25 @@
 import { UtensilsCrossed } from "lucide-react";
 
-function MenuHero({ restaurant }) {
+function MenuHero({ restaurant, preview = false }) {
 
     return (
 
         <header
-            className="
+            className={`
                 relative
                 bg-gradient-to-br
-from-[#000020]
-via-[#17172b]
-to-[#5a2416]
+                from-[#000020]
+                via-[#17172b]
+                to-[#5a2416]
                 px-6
-                pt-16
-                pb-16   
+                ${
+                    preview
+                        ? "pt-18 pb-14"
+                        : "pt-16 pb-16"
+                }
                 text-center
                 text-white
-            "
+            `}
         >
 
             <div className="mx-auto
@@ -24,9 +27,17 @@ to-[#5a2416]
         flex-col
         items-center">
 
-                <div className="flex items-center justify-center gap-2 text-[#fc4b08] mb-2">
+                <div className="space-y-3 text-[#fc4b08] mb-2">
 
-                    <h1 className="text-3xl font-bold">
+                    <h1 className={`
+                                    font-bold
+                                    tracking-tight
+                                    ${
+                                        preview
+                                            ? "text-3xl"
+                                            : "text-4xl"
+                                    }
+                                `}>
                         {restaurant.nombre}
                     </h1>
 
@@ -39,26 +50,34 @@ to-[#5a2416]
             </div>
 
             <div
-                className="
-                    absolute
-                    -bottom-8
-                    left-1/2
-                    flex
-                    h-16
-                    w-16
-                    -translate-x-1/2
-                    items-center
-                    justify-center
-                    rounded-full
-                    border-4
-                    border-white
-                    bg-[#fc4b08]
-                    shadow-lg
-                "
+                className={`
+                            absolute
+                            -bottom-8
+                            left-1/2
+                            flex
+                            -translate-x-1/2
+                            items-center
+                            justify-center
+                            rounded-full
+                            border-4
+                            border-white
+                            bg-[#fc4b08]
+                            shadow-lg
+
+                            ${
+                                preview
+                                    ? "h-16 w-16"
+                                    : "h-18 w-18"
+                            }
+                        `}
             >
 
                 <UtensilsCrossed
-                    size={28}
+                    size={
+                        preview
+                            ? 26
+                            : 30
+                    }
                     className="text-white"
                 />
 

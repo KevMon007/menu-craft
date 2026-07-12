@@ -1,4 +1,4 @@
-function ProductCard({ product }) {
+function ProductCard({ product, preview=false }) {
 
     return (
 
@@ -25,12 +25,16 @@ function ProductCard({ product }) {
                         <img
                             src={product.url_foto}
                             alt={product.nombre}
-                            className="
-                                h-40
-                                w-full
-                                rounded-xl
-                                object-cover
-                            "
+                            className={`
+                                        w-full
+                                        rounded-xl
+                                        object-cover
+                                        ${
+                                            preview
+                                                ? "h-44"
+                                                : "h-40"
+                                        }
+                                    `}
                         />
 
                     )
@@ -42,8 +46,8 @@ function ProductCard({ product }) {
                                 p-5">
 
                 <h3 className="text-lg
-        font-semibold
-        text-slate-900">
+                                font-semibold
+                                text-slate-900">
 
                                     {product.nombre}
 
@@ -52,7 +56,13 @@ function ProductCard({ product }) {
                 {
                     product.descripcion && (
 
-                        <p className="text-sm text-gray-500 mt-1">
+                        <p className="
+                                        mt-2
+                                        text-sm
+                                        leading-6
+                                        text-gray-500
+                                        line-clamp-2
+                                    ">
 
                             {product.descripcion}
 
@@ -63,7 +73,7 @@ function ProductCard({ product }) {
 
                 <div className="mt-auto pt-5 text-right">
 
-                <span className="text-xl font-bold text-orange-500">
+                <span className="text-xl font-bold text-[#fc4b08]">
 
                     ${parseFloat(product.precio).toFixed(2)}
 

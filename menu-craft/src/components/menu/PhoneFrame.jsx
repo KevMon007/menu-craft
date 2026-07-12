@@ -4,8 +4,9 @@ function PhoneFrame({ children }) {
 
         <div
             className="
+                relative
                 mx-auto
-                w-[360px]
+                w-[390px]
                 rounded-[42px]
                 border-[10px]
                 border-slate-900
@@ -18,12 +19,16 @@ function PhoneFrame({ children }) {
 
             <div
                 className="
-                    mx-auto
-                    mt-3
+                    absolute
+                    left-1/2
+                    top-5
+                    z-20
                     h-7
                     w-32
+                    -translate-x-1/2
                     rounded-full
                     bg-black
+                    shadow-md
                 "
             />
 
@@ -31,8 +36,8 @@ function PhoneFrame({ children }) {
 
             <div
                 className="
-                    mt-3
-                    h-[700px]
+                    hide-scrollbar
+                    h-[780px]
                     overflow-y-auto
                     rounded-[30px]
                     bg-white

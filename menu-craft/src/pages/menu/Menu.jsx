@@ -1,17 +1,15 @@
   import { useEffect, useState } from "react";
-  import { Link, useParams, useSearchParams } from "react-router-dom";
+  import { useNavigate, useParams, useSearchParams } from "react-router-dom";
   import { UtensilsCrossed, AlertCircle, ArrowLeft } from "lucide-react";
 
-  import MenuHero from "../../components/menu/MenuHero";
-  import CategoryTabs from "../../components/menu/CategoryTabs";
-  import ProductGrid from "../../components/menu/ProductGrid";
-  import EmptyMenu from "../../components/menu/EmptyMenu";
   import PhoneFrame from "../../components/menu/PhoneFrame";
+  import MenuView from "../../components/menu/MenuView";
 
   const API_URL = import.meta.env.VITE_API_URL || "";
 
   function Menu() {
     const { slug } = useParams();
+    const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const isPreview =
     searchParams.get("preview") === "true";
@@ -20,6 +18,20 @@
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedCategory, setSelectedCategory] = useState("all");
+
+    const handleBack = () => {
+
+        if (window.opener) {
+
+            window.close();
+
+            return;
+
+        }
+
+        navigate("/public-menu");
+
+    };
 
     useEffect(() => {
       async function loadMenu() {
@@ -68,46 +80,6 @@
 
     if (!menu) return null;
 
-    const menuContent = (
-        <>
-            <MenuHero
-                restaurant={menu.restaurante}
-            />
-
-            <main className="max-w-2xl mx-auto px-4 py-8 space-y-8">
-
-                <CategoryTabs
-                    categories={menu.categorias}
-                    selectedCategory={selectedCategory}
-                    onSelectCategory={setSelectedCategory}
-                />
-
-                {
-                    menu.categorias.length === 0
-                        ? <EmptyMenu />
-                        : (
-                            <ProductGrid
-                                categories={menu.categorias}
-                                selectedCategory={selectedCategory}
-                                preview={isPreview}
-                            />
-                        )
-                }
-
-            </main>
-
-            <footer className="border-t border-gray-200 py-6 mt-8">
-
-                <p className="text-center text-xs text-gray-400">
-
-                    MenuCraft — Tu carta digital, en un escaneo.
-
-                </p>
-
-            </footer>
-        </>
-    );
-
     if (isPreview) {
 
         return (
@@ -128,8 +100,8 @@
                     "
                 >
 
-                    <Link
-                        to="/public-menu"
+                    <button
+                        onClick={handleBack}
                         className="
                             flex
                             items-center
@@ -146,7 +118,7 @@
 
                         Volver a Gestión del Menú
 
-                    </Link>
+                    </button>
 
                     <p
                         className="
@@ -167,14 +139,19 @@
                     className="
                         flex
                         justify-center
-                        py-10
-                        px-6
+                        py-8
+                        px-8
                     "
                 >
 
                     <PhoneFrame>
 
-                        {menuContent}
+                        <MenuView
+                            menu={menu}
+                            preview={true}
+                            selectedCategory={selectedCategory}
+                            onSelectCategory={setSelectedCategory}
+                        />
 
                     </PhoneFrame>
 
@@ -187,11 +164,18 @@
     }
 
     return (
-      <div className="min-h-screen bg-gray-50">
 
-        {menuContent}
+        <div className="min-h-screen bg-gray-50">
 
-    </div>
+            <MenuView
+                menu={menu}
+                preview={false}
+                selectedCategory={selectedCategory}
+                onSelectCategory={setSelectedCategory}
+            />
+
+        </div>
+
     );
   }
 

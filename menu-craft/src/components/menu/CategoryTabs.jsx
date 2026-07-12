@@ -2,11 +2,25 @@ function CategoryTabs({
     categories,
     selectedCategory,
     onSelectCategory,
+    preview = false
 }) {
 
     return (
 
-        <div className="flex gap-3 overflow-x-auto pb-2 pt-5">
+        <div
+            className={`
+                hide-scrollbar
+                flex
+                gap-3
+                overflow-x-auto
+                pb-3
+                ${
+                    preview
+                        ? "px-1 pt-4"
+                        : "pt-5"
+                }
+            `}
+        >
 
             {/* Botón Todas */}
 
