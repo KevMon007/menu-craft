@@ -4,7 +4,7 @@ function ProductCard({ product }) {
 
         <div
             className="
-                 flex
+                flex
                 h-full
                 flex-col
                 overflow-hidden
@@ -41,7 +41,9 @@ function ProductCard({ product }) {
                                 flex-col
                                 p-5">
 
-                <h3 className="font-medium text-slate-800">
+                <h3 className="text-lg
+        font-semibold
+        text-slate-900">
 
                                     {product.nombre}
 

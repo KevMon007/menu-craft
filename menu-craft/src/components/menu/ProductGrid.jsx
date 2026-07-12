@@ -1,7 +1,8 @@
 import ProductCard from "./ProductCard";
 
 function ProductGrid({ categories,
-                    selectedCategory, }) {
+                    selectedCategory,
+                    preview = false, }) {
 
     const visibleCategories =
     selectedCategory === "all"
@@ -45,7 +46,13 @@ function ProductGrid({ categories,
                         )
                     }
 
-                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    <div
+                        className={
+                            preview
+                                ? "grid grid-cols-1 gap-5"
+                                : "grid grid-cols-1 gap-5 sm:grid-cols-2"
+                        }
+                    >
 
                         {category.platillos.map((product) => (
 

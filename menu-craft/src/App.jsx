@@ -6,6 +6,7 @@ import Dashboard from './pages/dashboard/Dashboard';
 import Products from "./pages/products/Products";
 import Categories from "./pages/categories/Categories";
 import Menu from './pages/menu/Menu';
+import PublicMenu from "./pages/public-menu/PublicMenu";
 
 import PrivateRoute from './components/PrivateRoute';
 import AdminLayout from "./layouts/AdminLayout";
@@ -27,6 +28,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/products" element={<Products />} />
           <Route path="/categories" element={<Categories />} />
+          <Route path="/public-menu" element={<PublicMenu />} />
         </Route>
         <Route path="/menu/:slug" element={<Menu />} />
       </Routes>
