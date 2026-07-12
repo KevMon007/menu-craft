@@ -7,7 +7,7 @@ function ProductTable({
   onDelete,
 }) {
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden p-4">
       <table className="w-full">
 
         <thead className="bg-gray-100">
