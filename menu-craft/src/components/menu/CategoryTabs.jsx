@@ -6,7 +6,7 @@ function CategoryTabs({
 
     return (
 
-        <div className="flex gap-3 overflow-x-auto pb-2">
+        <div className="flex gap-3 overflow-x-auto pb-2 pt-5">
 
             {/* Botón Todas */}
 
@@ -14,7 +14,7 @@ function CategoryTabs({
                 onClick={() => onSelectCategory("all")}
                 className={`
                     rounded-full
-                    px-4
+                    px-3
                     py-2
                     text-sm
                     font-medium
@@ -23,7 +23,7 @@ function CategoryTabs({
 
                     ${
                         selectedCategory === "all"
-                            ? "bg-orange-500 text-white"
+                            ? "bg-[#fc4b08] text-white"
                             : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                     }
                 `}
@@ -40,7 +40,7 @@ function CategoryTabs({
                     onClick={() => onSelectCategory(category.id)}
                     className={`
                         rounded-full
-                        px-4
+                        px-3
                         py-2
                         text-sm
                         font-medium
@@ -49,7 +49,7 @@ function CategoryTabs({
 
                         ${
                             selectedCategory === category.id
-                                ? "bg-orange-500 text-white"
+                                ? "bg-[#fc4b08] text-white"
                                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                         }
                     `}

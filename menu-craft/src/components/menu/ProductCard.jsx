@@ -26,7 +26,7 @@ function ProductCard({ product }) {
                             src={product.url_foto}
                             alt={product.nombre}
                             className="
-                                h-44
+                                h-40
                                 w-full
                                 rounded-xl
                                 object-cover
