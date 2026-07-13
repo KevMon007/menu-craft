@@ -1,0 +1,51 @@
+services:
+  api:
+    build:
+      context: ./menucraft-backend
+      dockerfile: Dockerfile
+    container_name: menucraft_api
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      FRONTEND_URL: http://localhost:5173
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-menucraft_user}
+      DB_PASS: ${DB_PASS:-menucraft_password}
+      DB_NAME: ${DB_NAME:-menucraft_db}
+      JWT_SECRET: ${JWT_SECRET:-dev_secret_cambia_en_produccion}
+      JWT_EXPIRES_IN: 8h
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-}
+    volumes:
+      - ./menucraft-backend:/app
+      - /app/node_modules
+    networks:
+      - menucraft_network
+
+  frontend:
+    build:
+      context: ./menu-craft
+      dockerfile: Dockerfile
+    container_name: menucraft_frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: http://localhost:3000
+    volumes:
+      - ./menu-craft:/app
+      - /app/node_modules
+    depends_on:
+      - api
+    networks:
+      - menucraft_network
+
+networks:
+  menucraft_network:
+    name: menucraft_network
+    driver: bridge
