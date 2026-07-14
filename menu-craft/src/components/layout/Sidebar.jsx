@@ -11,7 +11,6 @@ import logo from "../../assets/Logo.png";
 import { useAuth } from "../../context/AuthContext";
 
 function Sidebar() {
-  const restaurantSlug = localStorage.getItem("restaurantSlug");
   const navigate = useNavigate();
   const { logout } = useAuth();
 
@@ -135,7 +134,7 @@ function Sidebar() {
 
           <li>
             <NavLink
-              to={`/menu/${restaurantSlug}`}
+              to="/public-menu"
               className={({isActive})=>
 
                 `
