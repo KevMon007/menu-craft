@@ -8,20 +8,18 @@ import { LayoutDashboard,
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import logo from "../../assets/Logo.png";
+import { useAuth } from "../../context/AuthContext";
 
 function Sidebar() {
-
   const restaurantSlug = localStorage.getItem("restaurantSlug");
   const navigate = useNavigate();
+  const { logout } = useAuth();
+
   const handleLogout = () => {
-
-      localStorage.removeItem("token");
-      localStorage.removeItem("restaurantSlug");
-
+      logout();
       navigate("/login", {
           replace: true,
       });
-
   };
 
   return (

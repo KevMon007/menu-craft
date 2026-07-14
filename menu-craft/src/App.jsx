@@ -9,14 +9,20 @@ import Menu from './pages/Menu';
 
 import PrivateRoute from './components/PrivateRoute';
 import AdminLayout from "./layouts/AdminLayout";
+import { useAuth } from './context/AuthContext';
+
+function PublicRoute({ children }) {
+  const { user } = useAuth();
+  return user ? <Navigate to="/dashboard" replace /> : children;
+}
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/" element={<PublicRoute><Navigate to="/login" replace /></PublicRoute>} />
+        <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+        <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
         <Route
           element={
             <PrivateRoute>

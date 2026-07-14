@@ -2,7 +2,8 @@ import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthHero from "../../components/AuthHero";
-import { useNotification } from "../../components/ToastNotification"; // Importación del hook
+import { useNotification } from "../../components/ToastNotification";
+import { useAuth } from "../../context/AuthContext";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
@@ -12,7 +13,8 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { showNotification } = useNotification(); // Inicialización
+  const { showNotification } = useNotification();
+  const { login } = useAuth();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -32,7 +34,7 @@ function Login() {
         return;
       }
       if (data.token) {
-        localStorage.setItem("token", data.token);
+        login(data.token, data.usuario);
         localStorage.setItem("restaurantSlug", data.usuario?.slug || "");
         showNotification("¡Bienvenido de nuevo!", "success");
         navigate("/dashboard", { replace: true });
