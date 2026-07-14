@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthHero from "../../components/AuthHero";
 import { useNotification } from "../../components/ToastNotification";
-import { useAuth } from "../../context/AuthContext"; // 👈 1. Importamos el contexto de autenticación
+import { useAuth } from "../../context/AuthContext";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
@@ -14,7 +14,7 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { showNotification } = useNotification();
-  const { login } = useAuth(); // 👈 2. Extraemos la función login del contexto
+  const { login } = useAuth();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -34,10 +34,7 @@ function Login() {
         return;
       }
       if (data.token) {
-        // 👈 3. Reemplazamos el localStorage directo por nuestra función del contexto
-        // Esto guarda el token en localStorage e informa a toda la app que la sesión inició
-        login(data.token);
-
+        login(data.token, data.usuario);
         localStorage.setItem("restaurantSlug", data.usuario?.slug || "");
         showNotification("¡Bienvenido de nuevo!", "success");
         navigate("/dashboard", { replace: true });

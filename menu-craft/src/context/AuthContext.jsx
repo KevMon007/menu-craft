@@ -1,4 +1,6 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 const AuthContext = createContext();
 
@@ -6,30 +8,54 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Restaurar sesión al cargar la app
-    const token = localStorage.getItem('token');
-    if (token) {
-      // Si hay token, asumimos sesión activa.
-      // Idealmente el backend validará este token en cada petición HTTP.
-      setUser({ loggedIn: true });
-    }
-    setLoading(false);
+  const clearSession = useCallback(() => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('restaurantSlug');
+    setUser(null);
   }, []);
 
-  const login = (token) => {
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    fetch(`${API_URL}/api/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error('Sesión inválida');
+        return res.json();
+      })
+      .then((data) => {
+        setUser(data.usuario);
+      })
+      .catch(() => {
+        clearSession();
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [clearSession]);
+
+  useEffect(() => {
+    const handleLogout = () => setUser(null);
+    window.addEventListener('auth:logout', handleLogout);
+    return () => window.removeEventListener('auth:logout', handleLogout);
+  }, []);
+
+  const login = (token, usuario) => {
     localStorage.setItem('token', token);
-    setUser({ loggedIn: true });
+    setUser(usuario);
   };
 
   const logout = () => {
-    // Cierre de sesión manual: elimina el token
-    localStorage.removeItem('token');
-    setUser(null);
+    clearSession();
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, clearSession }}>
       {!loading && children}
     </AuthContext.Provider>
   );
