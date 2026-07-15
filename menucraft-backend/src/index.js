@@ -1,4 +1,7 @@
 require('dotenv').config();
+const validateEnv = require('./validateEnv');
+
+validateEnv();
 
 const REQUIRED_VARS = ['JWT_SECRET'];
 const DB_VARS = ['DB_HOST', 'DB_USER', 'DB_PASS', 'DB_NAME'];

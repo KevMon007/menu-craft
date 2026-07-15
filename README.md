@@ -23,6 +23,24 @@ Plataforma web multi-inquilino (SaaS) para que restaurantes creen menús digital
 git clone https://github.com/KevMon007/menu-craft.git
 cd menucraft-saas
 ```
+## Validación de Variables de Entorno
+
+Para evitar fallos silenciosos en el sistema, se ha incorporado un mecanismo de validación automatizado al arranque del backend. Si falta alguna variable crítica (como `JWT_SECRET`), el proceso se detendrá de inmediato mostrando un error explícito por consola.
+
+Dependiendo de cómo levantes el proyecto localmente, asegúrate de configurar tu entorno:
+
+### Opción A: Desarrollo Local con Docker Compose
+Si utilizas Docker para levantar la infraestructura completa, el validador inspeccionará las variables mapeadas en tu contenedor. Si falta algún valor obligatorio, el contenedor del backend (`menucraft-backend`) se detendrá automáticamente y verás el error crítico reflejado en los logs de Docker.
+
+### Opción B: Desarrollo Local Nativo (Sin Docker / Node.js directo)
+Si prefieres correr el servidor de manera directa desde tu terminal:
+1. Dirígete a la carpeta `menucraft-backend/`.
+2. Copia el archivo `.env.example` y renombralo como `.env`.
+3. Rellena los valores obligatorios. Si ejecutas `npm start` omitiendo alguna variable, la consola bloqueará el inicio del servidor.
+
+*Nota sobre `JWT_SECRET` (RN-02):* Independientemente del método que uses, para generar un string seguro puedes ejecutar el comando sugerido en la plantilla:
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 ## Convenciones
 
