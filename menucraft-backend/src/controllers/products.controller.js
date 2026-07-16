@@ -1,13 +1,23 @@
 // src/controllers/products.controller.js
-// Issue #11 - CRUD de Platillos con restricción multi-tenant
-// Refactor: manejo global de errores (asyncHandler + AppError) en vez de try/catch manual.
-// La validación de payload ahora vive en validators.middleware.js (validateProduct).
+//
+// HU-PF-02 – Invalidación del caché al modificar platillos (RN-02, CA-03, CA-05, CA-06)
+// Cada operación de escritura exitosa invalida el caché del restaurante afectado.
 
 const pool         = require('../config/db');
-const AppError     = require('../utils/AppError');
+const cache        = require('../services/cache.service');
 const asyncHandler = require('../utils/asyncHandler');
+const AppError     = require('../utils/AppError');
 
-// ─── GET /api/products ────────────────────────────────────────
+// ─── Helper: obtener slug del restaurante ─────────────────────────────────────
+const getSlug = async (restaurante_id) => {
+  const { rows } = await pool.query(
+    'SELECT slug FROM restaurantes WHERE id = $1',
+    [restaurante_id]
+  );
+  return rows[0]?.slug || null;
+};
+
+// ─── GET /api/products ────────────────────────────────────────────────────────
 const getProducts = asyncHandler(async (req, res) => {
   const { restaurante_id } = req.usuario;
   const { categoria_id } = req.query;
@@ -28,12 +38,13 @@ const getProducts = asyncHandler(async (req, res) => {
 
   query += ' ORDER BY c.orden ASC, c.nombre ASC, p.nombre ASC';
 
-  const result = await pool.query(query, params);
-  return res.status(200).json(result.rows);
+  const { rows } = await pool.query(query, params);
+  return res.status(200).json(rows);
 });
 
-// ─── POST /api/products ───────────────────────────────────────
-const createProduct = asyncHandler(async (req, res, next) => {
+// ─── POST /api/products ───────────────────────────────────────────────────────
+// CA-05: al crear platillo, se invalida el caché
+const createProduct = asyncHandler(async (req, res) => {
   const { categoria_id, nombre, descripcion, precio, url_foto, disponible } = req.body;
   const { restaurante_id } = req.usuario;
 
@@ -43,10 +54,10 @@ const createProduct = asyncHandler(async (req, res, next) => {
     [categoria_id, restaurante_id]
   );
   if (catCheck.rows.length === 0) {
-    return next(new AppError('Categoría no válida para este restaurante', 403));
+    throw new AppError('Categoría no válida para este restaurante', 403);
   }
 
-  const result = await pool.query(
+  const { rows } = await pool.query(
     `INSERT INTO platillos
        (categoria_id, restaurante_id, nombre, descripcion, precio, url_foto, disponible)
      VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -61,17 +72,23 @@ const createProduct = asyncHandler(async (req, res, next) => {
       disponible !== undefined ? disponible : true,
     ]
   );
-  return res.status(201).json(result.rows[0]);
+
+  // HU-PF-02: invalidar caché (CA-05)
+  const slug = await getSlug(restaurante_id);
+  cache.invalidate(slug);
+
+  return res.status(201).json(rows[0]);
 });
 
-// ─── PUT /api/products/:id ────────────────────────────────────
-const updateProduct = asyncHandler(async (req, res, next) => {
+// ─── PUT /api/products/:id ────────────────────────────────────────────────────
+// CA-03: al editar platillo (incluido cambiar disponibilidad), se invalida el caché
+const updateProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { nombre, descripcion, precio, url_foto, disponible, categoria_id } = req.body;
   const { restaurante_id } = req.usuario;
 
   if (Number.isNaN(Number(id))) {
-    return next(new AppError('El ID de platillo no es válido', 400));
+    throw new AppError('El ID de platillo no es válido', 400);
   }
 
   // Si se está cambiando de categoría, revalidar pertenencia al restaurante
@@ -81,12 +98,11 @@ const updateProduct = asyncHandler(async (req, res, next) => {
       [categoria_id, restaurante_id]
     );
     if (catCheck.rows.length === 0) {
-      return next(new AppError('Categoría no válida para este restaurante', 403));
+      throw new AppError('Categoría no válida para este restaurante', 403);
     }
   }
 
-  // WHERE incluye restaurante_id -> aislamiento multi-tenant
-  const result = await pool.query(
+  const { rows } = await pool.query(
     `UPDATE platillos
      SET nombre       = COALESCE($1, nombre),
          descripcion  = COALESCE($2, descripcion),
@@ -100,31 +116,39 @@ const updateProduct = asyncHandler(async (req, res, next) => {
     [nombre, descripcion, precio, url_foto, disponible, categoria_id, id, restaurante_id]
   );
 
-  if (result.rows.length === 0) {
-    return next(new AppError('Platillo no encontrado', 404));
-  }
-  return res.status(200).json(result.rows[0]);
+  if (rows.length === 0) throw new AppError('Platillo no encontrado', 404);
+
+  // HU-PF-02: invalidar caché (CA-03)
+  const slug = await getSlug(restaurante_id);
+  cache.invalidate(slug);
+
+  return res.status(200).json(rows[0]);
 });
 
-// ─── DELETE /api/products/:id ─────────────────────────────────
-const deleteProduct = asyncHandler(async (req, res, next) => {
+// ─── DELETE /api/products/:id ─────────────────────────────────────────────────
+// CA-06: al eliminar platillo, se invalida el caché
+const deleteProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { restaurante_id } = req.usuario;
 
   if (Number.isNaN(Number(id))) {
-    return next(new AppError('El ID de platillo no es válido', 400));
+    throw new AppError('El ID de platillo no es válido', 400);
   }
 
-  const result = await pool.query(
+  const slug = await getSlug(restaurante_id);
+
+  const { rows } = await pool.query(
     `DELETE FROM platillos
      WHERE id = $1 AND restaurante_id = $2
      RETURNING id`,
     [id, restaurante_id]
   );
 
-  if (result.rows.length === 0) {
-    return next(new AppError('Platillo no encontrado', 404));
-  }
+  if (rows.length === 0) throw new AppError('Platillo no encontrado', 404);
+
+  // HU-PF-02: invalidar caché (CA-06)
+  cache.invalidate(slug);
+
   return res.status(200).json({ message: 'Platillo eliminado exitosamente' });
 });
 
