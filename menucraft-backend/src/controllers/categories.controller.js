@@ -58,6 +58,10 @@ const updateCategory = asyncHandler(async (req, res) => {
   const { nombre, orden } = req.body;
   const { restaurante_id } = req.usuario;
 
+  if (Number.isNaN(Number(id))) {
+    throw new AppError('El ID de categoría no es válido', 400);
+  }
+
   const { rows } = await pool.query(
     `UPDATE categorias
      SET nombre = COALESCE($1, nombre),
@@ -82,18 +86,30 @@ const deleteCategory = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { restaurante_id } = req.usuario;
 
+  if (Number.isNaN(Number(id))) {
+    throw new AppError('El ID de categoría no es válido', 400);
+  }
+
   // Obtenemos slug ANTES de eliminar (después el restaurante sigue existiendo,
   // pero lo hacemos antes por consistencia)
   const slug = await getSlug(restaurante_id);
 
-  const { rows } = await pool.query(
-    `DELETE FROM categorias
-     WHERE id = $1 AND restaurante_id = $2
-     RETURNING id`,
-    [id, restaurante_id]
-  );
+  try {
+    const { rows } = await pool.query(
+      `DELETE FROM categorias
+       WHERE id = $1 AND restaurante_id = $2
+       RETURNING id`,
+      [id, restaurante_id]
+    );
 
-  if (rows.length === 0) throw new AppError('Categoría no encontrada', 404);
+    if (rows.length === 0) throw new AppError('Categoría no encontrada', 404);
+  } catch (err) {
+    // FK violation: conserva la respuesta controlada previa si cambia la constraint.
+    if (err.code === '23503') {
+      throw new AppError('No se puede eliminar: la categoría tiene platillos asociados', 409);
+    }
+    throw err;
+  }
 
   // HU-PF-02: invalidar caché (CA-06)
   cache.invalidate(slug);

@@ -37,13 +37,14 @@ const mockResponse = {
   }],
 };
 
-const mockReq = (params = {}) => ({ params, body: {}, usuario: {} });
+const mockReq = (params = {}, body = {}, usuario = {}, query = {}) => ({ params, body, usuario, query });
 const mockRes = () => {
   const res = {};
   res.status = jest.fn().mockReturnValue(res);
   res.json   = jest.fn().mockReturnValue(res);
   return res;
 };
+const flushPromises = () => new Promise((resolve) => setImmediate(resolve));
 
 // ══════════════════════════════════════════════════════════════════════════════
 // HU-PF-02: Cache Service
@@ -126,10 +127,10 @@ describe('HU-PF-01 – Menu Controller optimizado', () => {
   });
 
   test('CA-05 – restaurante inexistente no se cachea', () => {
-  // Verificar que un slug que no existe no queda en caché
-  expect(cache.get('no-existe')).toBeNull();
-  expect(cache.size()).toBe(0);
-});
+    // Verificar que un slug que no existe no queda en caché
+    expect(cache.get('no-existe')).toBeNull();
+    expect(cache.size()).toBe(0);
+  });
 
   test('CA-05/RN-03 – la query filtra platillos con disponible = TRUE', async () => {
     pool.query.mockResolvedValueOnce({ rows: mockRows });
@@ -150,5 +151,86 @@ describe('HU-PF-01 – Menu Controller optimizado', () => {
     const res = mockRes();
     await getMenu(mockReq({ slug: 'el-taco-loco' }), res, jest.fn());
     expect(res.json.mock.calls[0][0].restaurante.slug).toBe('el-taco-loco');
+  });
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// HU-PF-02: Invalidación sin romper endpoints administrativos
+// ══════════════════════════════════════════════════════════════════════════════
+describe('HU-PF-02 – Contratos administrativos e invalidación', () => {
+  const productsController = require('../controllers/products.controller');
+  const categoriesController = require('../controllers/categories.controller');
+
+  beforeEach(() => {
+    cache.clear();
+    pool.query.mockReset();
+  });
+
+  test('GET /api/products conserva categoria_nombre, updated_at y orden administrativo', async () => {
+    pool.query.mockResolvedValueOnce({ rows: [] });
+
+    productsController.getProducts(
+      mockReq({}, {}, { restaurante_id: 1 }),
+      mockRes(),
+      jest.fn()
+    );
+    await flushPromises();
+
+    const query = pool.query.mock.calls[0][0];
+    expect(query).toContain('c.nombre AS categoria_nombre');
+    expect(query).toContain('p.updated_at');
+    expect(query).toContain('ORDER BY c.orden ASC, c.nombre ASC, p.nombre ASC');
+  });
+
+  test('updateProduct rechaza categoria_id de otro restaurante', async () => {
+    pool.query.mockResolvedValueOnce({ rows: [] });
+    const next = jest.fn();
+
+    productsController.updateProduct(
+      mockReq({ id: '10' }, { categoria_id: 99 }, { restaurante_id: 1 }),
+      mockRes(),
+      next
+    );
+    await flushPromises();
+
+    expect(pool.query).toHaveBeenCalledTimes(1);
+    expect(pool.query.mock.calls[0][0]).toContain('SELECT id FROM categorias');
+    expect(next).toHaveBeenCalledWith(expect.objectContaining({
+      message: 'Categoría no válida para este restaurante',
+      statusCode: 403,
+    }));
+  });
+
+  test('updateProduct invalida caché después de actualizar correctamente', async () => {
+    cache.set('el-taco-loco', mockResponse);
+    pool.query
+      .mockResolvedValueOnce({ rows: [{ id: 99 }] })
+      .mockResolvedValueOnce({ rows: [{ id: 10, nombre: 'Taco actualizado' }] })
+      .mockResolvedValueOnce({ rows: [{ slug: 'el-taco-loco' }] });
+
+    productsController.updateProduct(
+      mockReq({ id: '10' }, { categoria_id: 99, nombre: 'Taco actualizado' }, { restaurante_id: 1 }),
+      mockRes(),
+      jest.fn()
+    );
+    await flushPromises();
+
+    expect(cache.get('el-taco-loco')).toBeNull();
+  });
+
+  test('updateCategory invalida caché después de actualizar correctamente', async () => {
+    cache.set('el-taco-loco', mockResponse);
+    pool.query
+      .mockResolvedValueOnce({ rows: [{ id: 1, nombre: 'Tacos', orden: 1 }] })
+      .mockResolvedValueOnce({ rows: [{ slug: 'el-taco-loco' }] });
+
+    categoriesController.updateCategory(
+      mockReq({ id: '1' }, { nombre: 'Tacos' }, { restaurante_id: 1 }),
+      mockRes(),
+      jest.fn()
+    );
+    await flushPromises();
+
+    expect(cache.get('el-taco-loco')).toBeNull();
   });
 });

@@ -22,17 +22,21 @@ const getProducts = asyncHandler(async (req, res) => {
   const { restaurante_id } = req.usuario;
   const { categoria_id } = req.query;
 
-  let query = `SELECT id, categoria_id, nombre, descripcion, precio, url_foto, disponible
-               FROM platillos
-               WHERE restaurante_id = $1`;
+  let query = `
+    SELECT p.id, p.categoria_id, c.nombre AS categoria_nombre,
+           p.nombre, p.descripcion, p.precio, p.url_foto, p.disponible, p.updated_at
+    FROM platillos p
+    JOIN categorias c ON c.id = p.categoria_id
+    WHERE p.restaurante_id = $1
+  `;
   const params = [restaurante_id];
 
   if (categoria_id) {
-    query += ` AND categoria_id = $2`;
+    query += ' AND p.categoria_id = $2';
     params.push(categoria_id);
   }
 
-  query += ` ORDER BY nombre ASC`;
+  query += ' ORDER BY c.orden ASC, c.nombre ASC, p.nombre ASC';
 
   const { rows } = await pool.query(query, params);
   return res.status(200).json(rows);
@@ -83,6 +87,21 @@ const updateProduct = asyncHandler(async (req, res) => {
   const { nombre, descripcion, precio, url_foto, disponible, categoria_id } = req.body;
   const { restaurante_id } = req.usuario;
 
+  if (Number.isNaN(Number(id))) {
+    throw new AppError('El ID de platillo no es válido', 400);
+  }
+
+  // Si se está cambiando de categoría, revalidar pertenencia al restaurante
+  if (categoria_id !== undefined) {
+    const catCheck = await pool.query(
+      'SELECT id FROM categorias WHERE id = $1 AND restaurante_id = $2',
+      [categoria_id, restaurante_id]
+    );
+    if (catCheck.rows.length === 0) {
+      throw new AppError('Categoría no válida para este restaurante', 403);
+    }
+  }
+
   const { rows } = await pool.query(
     `UPDATE platillos
      SET nombre       = COALESCE($1, nombre),
@@ -111,6 +130,10 @@ const updateProduct = asyncHandler(async (req, res) => {
 const deleteProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { restaurante_id } = req.usuario;
+
+  if (Number.isNaN(Number(id))) {
+    throw new AppError('El ID de platillo no es válido', 400);
+  }
 
   const slug = await getSlug(restaurante_id);
 
