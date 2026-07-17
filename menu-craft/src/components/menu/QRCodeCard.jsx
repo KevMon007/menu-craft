@@ -1,7 +1,29 @@
 import { QrCode } from "lucide-react";
 import { Card, Button } from "../ui";
+import { QRCodeCanvas } from "qrcode.react";
+import { useRef } from "react";
 
-function QRCodeCard() {
+function QRCodeCard({menuUrl}) {
+
+    const qrRef = useRef(null);
+
+    const handleDownload = () => {
+
+        const canvas = qrRef.current;
+
+        if (!canvas) return;
+
+        const pngUrl = canvas.toDataURL("image/png");
+
+        const link = document.createElement("a");
+
+        link.href = pngUrl;
+
+        link.download = `${menuUrl.split("/").pop()}-qr.png`;
+
+        link.click();
+
+    };
 
     return (
 
@@ -21,9 +43,28 @@ function QRCodeCard() {
 
                 </div>
 
-                {/* Aquí irá el QR */}
+                <div className="flex justify-center">
+                    <QRCodeCanvas
+                        ref={qrRef}
+                        value={menuUrl}
+                        size={180}
+                        bgColor="#ffffff"
+                        fgColor="#000000"
+                        includeMargin
+                    />
+                </div>
 
-                {/* Aquí irá el botón */}
+                <div className="flex justify-center">
+
+                    <Button
+                        onClick={handleDownload}
+                    >
+
+                        Descargar QR
+
+                    </Button>
+
+                </div>
 
             </div>
 

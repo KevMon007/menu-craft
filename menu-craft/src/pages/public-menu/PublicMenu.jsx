@@ -1,9 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import {
-    Eye,
-    Globe,
-    QrCode,
-} from "lucide-react";
+import { Eye, Globe, QrCode } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { useAuth } from "../../context/AuthContext";
@@ -11,6 +7,7 @@ import MenuView from "../../components/menu/MenuView";
 import { PageHeader } from "../../components/shared";
 import { Card, Button } from "../../components/ui";
 import PhoneFrame from "../../components/menu/PhoneFrame";
+import QRCodeCard from "../../components/menu/QRCodeCard";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
@@ -21,6 +18,8 @@ function PublicMenu() {
     const { user } = useAuth();
 
     const restaurantSlug = user?.slug;
+    const APP_URL = import.meta.env.VITE_APP_URL || window.location.origin;
+    const menuUrl = `${APP_URL}/menu/${restaurantSlug}`;
 
     const [menu, setMenu] = useState(null);
 
@@ -177,31 +176,7 @@ function PublicMenu() {
 
                     </Card>
 
-                    <Card className="p-8">
-
-                        <div className="space-y-4">
-
-                            <div className="flex items-center gap-3">
-
-                                <QrCode className="text-orange-500" />
-
-                                <h2 className="text-xl font-semibold">
-
-                                    Código QR
-
-                                </h2>
-
-                            </div>
-
-                            <p className="text-gray-500">
-
-                                Próximamente podrás generar, descargar y compartir el código QR de tu restaurante.
-
-                            </p>
-
-                        </div>
-
-                    </Card>
+                    <QRCodeCard menuUrl={menuUrl} />
 
                 </div>
 
