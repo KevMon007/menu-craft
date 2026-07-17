@@ -11,7 +11,7 @@ function getHeaders() {
 
 export async function apiFetch(endpoint, options = {}) {
 
-  const response = await fetch(`${API_URL}${endpoint}`, {
+  const response = await fetch(`${API_URL}/api${endpoint}`, {
     ...options,
     headers: {
       ...getHeaders(),
