@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { useAuth } from "../../context/AuthContext";
 import MenuView from "../../components/menu/MenuView";
 import { PageHeader } from "../../components/shared";
 import { Card, Button } from "../../components/ui";
@@ -17,8 +18,9 @@ function PublicMenu() {
 
     const navigate = useNavigate();
 
-    const restaurantSlug =
-        localStorage.getItem("restaurantSlug");
+    const { user } = useAuth();
+
+    const restaurantSlug = user?.slug;
 
     const [menu, setMenu] = useState(null);
 
