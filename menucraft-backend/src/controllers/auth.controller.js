@@ -146,10 +146,48 @@ const login = async (req, res) => {
   }
 };
 
+// ─── GET /api/auth/me ────────────────────────────────────────
+// Valida que el JWT sea válido y devuelve datos del usuario autenticado
+const me = async (req, res) => {
+  const { usuario_id } = req.usuario;
+
+  try {
+    const result = await pool.query(
+      `SELECT u.id, u.nombre, u.email, u.rol, u.restaurante_id,
+              r.nombre AS nombre_restaurante, r.slug
+       FROM usuarios u
+       JOIN restaurantes r ON r.id = u.restaurante_id
+       WHERE u.id = $1`,
+      [usuario_id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: 'Usuario no encontrado' });
+    }
+
+    const usuario = result.rows[0];
+
+    return res.status(200).json({
+      usuario: {
+        id:                 usuario.id,
+        nombre:             usuario.nombre,
+        email:              usuario.email,
+        rol:                usuario.rol,
+        restaurante_id:     usuario.restaurante_id,
+        nombre_restaurante: usuario.nombre_restaurante,
+        slug:               usuario.slug,
+      },
+    });
+  } catch (err) {
+    console.error('[Auth] Error en me:', err.message);
+    return res.status(500).json({ error: 'Error interno del servidor' });
+  }
+};
+
 // ─── POST /api/auth/logout ────────────────────────────────────
 const logout = (req, res) => {
   res.clearCookie('token');
   return res.status(200).json({ message: 'Sesión cerrada exitosamente' });
 };
 
-module.exports = { register, login, logout };
+module.exports = { register, login, logout, me };

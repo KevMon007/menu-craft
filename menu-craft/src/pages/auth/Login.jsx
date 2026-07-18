@@ -1,7 +1,9 @@
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import AuthHero from "../components/AuthHero";
+import AuthHero from "../../components/AuthHero";
+import { useNotification } from "../../components/ToastNotification";
+import { useAuth } from "../../context/AuthContext";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
@@ -10,13 +12,14 @@ function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { showNotification } = useNotification();
+  const { login } = useAuth();
 
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    showNotification("Iniciando sesión...", "info");
 
     try {
       const res = await fetch(`${API_URL}/api/auth/login`, {
@@ -26,20 +29,21 @@ function Login() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data?.error || data?.message || "Credenciales inválidas");
+        showNotification(data?.error || data?.message || "Credenciales inválidas", "error");
         setLoading(false);
         return;
       }
       if (data.token) {
-        localStorage.setItem("token", data.token);
+        login(data.token, data.usuario);
         localStorage.setItem("restaurantSlug", data.usuario?.slug || "");
+        showNotification("¡Bienvenido de nuevo!", "success");
         navigate("/dashboard", { replace: true });
       } else {
-        setError("Respuesta inválida del servidor");
+        showNotification("Respuesta inválida del servidor", "error");
         setLoading(false);
       }
     } catch {
-      setError("Error de red, intenta de nuevo");
+      showNotification("Error de red, intenta de nuevo", "error");
       setLoading(false);
     }
   }
@@ -116,10 +120,6 @@ function Login() {
                 ¿Olvidaste tu contraseña?
               </button>
             </div>
-
-            {error && (
-              <p className="text-sm text-red-600">{error}</p>
-            )}
 
             <button
               type="submit"
