@@ -49,7 +49,7 @@ cd menucraft-saas
 NODE_ENV=production
 JWT_SECRET=<generar: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))">
 JWT_EXPIRES_IN=8h
-FRONTEND_URL=<URL_del_Static_Site>
+FRONTEND_URL=<URL_publica_del_frontend_sin_slash_final>
 DB_HOST=<Render_PostgreSQL_host>
 DB_PORT=5432
 DB_USER=<usuario>
@@ -69,6 +69,8 @@ DB_NAME=<nombre_db>
 ```
 VITE_API_URL=https://<nombre-backend>.onrender.com
 ```
+
+`VITE_API_URL` debe apuntar al backend público. No uses `localhost` en producción porque el navegador del usuario intentaría conectarse a su propia máquina.
 
 ### 4. Trigger del CI
 El workflow de GitHub Actions corre automáticamente al hacer push a `main` o `develop`, validando que frontend y backend compilen correctamente.

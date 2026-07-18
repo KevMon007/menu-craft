@@ -4,8 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import AuthHero from "../../components/AuthHero";
 import { useNotification } from "../../components/ToastNotification";
 import { useAuth } from "../../context/AuthContext";
-
-const API_URL = import.meta.env.VITE_API_URL || "";
+import { API_BASE_URL } from "../../services/api";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -22,7 +21,7 @@ function Login() {
     showNotification("Iniciando sesión...", "info");
 
     try {
-      const res = await fetch(`${API_URL}/api/auth/login`, {
+      const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

@@ -7,8 +7,7 @@ import { PageHeader } from "../../components/shared";
 import { Card, Button } from "../../components/ui";
 import PhoneFrame from "../../components/menu/PhoneFrame";
 import QRCodeCard from "../../components/menu/QRCodeCard";
-
-const API_URL = import.meta.env.VITE_API_URL || "";
+import { API_BASE_URL } from "../../services/api";
 
 function PublicMenu() {
 
@@ -60,7 +59,7 @@ function PublicMenu() {
             try {
 
                 const res = await fetch(
-                    `${API_URL}/api/menu/${restaurantSlug}`
+                    `${API_BASE_URL}/api/menu/${restaurantSlug}`
                 );
 
                 const data = await res.json();

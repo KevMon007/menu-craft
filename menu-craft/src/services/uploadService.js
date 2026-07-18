@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+import { API_BASE_URL } from "./api";
 
 export const uploadProductImage = async (file) => {
     const token = localStorage.getItem("token");
@@ -6,7 +6,7 @@ export const uploadProductImage = async (file) => {
     const formData = new FormData();
     formData.append("imagen", file);
 
-    const response = await fetch(`${API_URL}/api/uploads/platillo`, {
+    const response = await fetch(`${API_BASE_URL}/api/uploads/platillo`, {
         method: "POST",
         headers: {
             Authorization: `Bearer ${token}`,

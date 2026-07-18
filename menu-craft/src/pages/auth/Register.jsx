@@ -3,8 +3,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthHero from "../../components/AuthHero";
 import { useNotification } from "../../components/ToastNotification"; // Importación del hook
-
-const API_URL = import.meta.env.VITE_API_URL || "";
+import { API_BASE_URL } from "../../services/api";
 
 function Register() {
   const [restaurantName, setRestaurantName] = useState("");
@@ -52,7 +51,7 @@ function Register() {
     showNotification("Creando cuenta de restaurante...", "info");
 
     try {
-      const res = await fetch(`${API_URL}/api/auth/register`, {
+      const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

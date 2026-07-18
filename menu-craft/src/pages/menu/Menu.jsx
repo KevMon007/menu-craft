@@ -1,11 +1,10 @@
   import { useEffect, useState } from "react";
   import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-  import { UtensilsCrossed, AlertCircle, ArrowLeft } from "lucide-react";
+  import { AlertCircle, ArrowLeft } from "lucide-react";
 
   import PhoneFrame from "../../components/menu/PhoneFrame";
   import MenuView from "../../components/menu/MenuView";
-
-  const API_URL = import.meta.env.VITE_API_URL || "";
+  import { API_BASE_URL } from "../../services/api";
 
   function Menu() {
     const { slug } = useParams();
@@ -39,7 +38,7 @@
         setError(null);
 
         try {
-          const res = await fetch(`${API_URL}/api/menu/${slug}`);
+          const res = await fetch(`${API_BASE_URL}/api/menu/${slug}`);
           const data = await res.json();
 
           if (!res.ok) {

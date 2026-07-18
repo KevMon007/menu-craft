@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+export const API_BASE_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
 function getHeaders() {
   const token = localStorage.getItem("token");
@@ -11,7 +11,7 @@ function getHeaders() {
 
 export async function apiFetch(endpoint, options = {}) {
 
-  const response = await fetch(`${API_URL}/api${endpoint}`, {
+  const response = await fetch(`${API_BASE_URL}/api${endpoint}`, {
     ...options,
     headers: {
       ...getHeaders(),

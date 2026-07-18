@@ -2,15 +2,15 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, Edit3, Trash2, Check, X, LogOut, ExternalLink, Image } from "lucide-react";
 import { useNotification } from "../components/ToastNotification"; // Importación del hook
+import { API_BASE_URL } from "../services/api";
 
 function api(path, options = {}) {
   const token = localStorage.getItem("token");
-  const base = import.meta.env.VITE_API_URL || "";
 
   // Si mandamos un FormData (para la imagen), dejamos que el navegador ponga el Content-Type correcto automáticamente
   const isFormData = options.body instanceof FormData;
 
-  return fetch(`${base}${path}`, {
+  return fetch(`${API_BASE_URL}${path}`, {
     ...options,
     headers: {
       ...(isFormData ? {} : { "Content-Type": "application/json" }),

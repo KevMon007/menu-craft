@@ -8,6 +8,10 @@ const cookieParser = require('cookie-parser');
 const multer = require('multer');
 
 const app = express();
+const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
+  .split(',')
+  .map(origin => origin.trim())
+  .filter(Boolean);
 
 // ─── Middlewares Globales ─────────────────────────────────────────────────────
 app.use(express.json());
@@ -15,7 +19,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error('Origen no permitido por CORS'));
+    },
     credentials: true, // Necesario para que el navegador envíe cookies httpOnly
   })
 );

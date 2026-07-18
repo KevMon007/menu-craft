@@ -1,12 +1,13 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { API_BASE_URL } from '../services/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+/* eslint-disable react-refresh/only-export-components */
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => Boolean(localStorage.getItem('token')));
 
   const clearSession = useCallback(() => {
     localStorage.removeItem('token');
@@ -17,11 +18,10 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
-      setLoading(false);
       return;
     }
 
-    fetch(`${API_URL}/api/auth/me`, {
+    fetch(`${API_BASE_URL}/api/auth/me`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
