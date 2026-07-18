@@ -7,6 +7,6 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 5173
+EXPOSE 8080
 
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]
+CMD ["sh", "-c", "npx serve -s dist -l tcp://0.0.0.0:${PORT:-8080}"]
