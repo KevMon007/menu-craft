@@ -1,5 +1,4 @@
-import { useNavigate } from "react-router-dom";
-import { Eye, Globe, QrCode } from "lucide-react";
+import { Globe } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { useAuth } from "../../context/AuthContext";
@@ -13,13 +12,11 @@ const API_URL = import.meta.env.VITE_API_URL || "";
 
 function PublicMenu() {
 
-    const navigate = useNavigate();
-
     const { user } = useAuth();
 
     const restaurantSlug = user?.slug;
     const APP_URL = import.meta.env.VITE_APP_URL || window.location.origin;
-    const menuUrl = `${APP_URL}/menu/${restaurantSlug}`;
+    const menuUrl = restaurantSlug ? `${APP_URL}/menu/${restaurantSlug}` : "";
 
     const [menu, setMenu] = useState(null);
 
@@ -41,6 +38,20 @@ function PublicMenu() {
     useEffect(() => {
 
         async function loadMenu() {
+
+            if (!restaurantSlug) {
+
+                setMenu(null);
+
+                setError(
+                    "No se encontró el slug del restaurante."
+                );
+
+                setLoading(false);
+
+                return;
+
+            }
 
             setLoading(true);
 
