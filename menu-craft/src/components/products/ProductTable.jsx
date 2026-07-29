@@ -5,6 +5,7 @@ function ProductTable({
   products,
   onEdit,
   onDelete,
+  onToggleStatus,
 }) {
   return (
     <Card className="overflow-hidden p-4">
@@ -51,6 +52,7 @@ function ProductTable({
               product={product}
               onEdit={onEdit}
               onDelete={onDelete}
+              onToggleStatus={onToggleStatus}
             />
 
           ))}

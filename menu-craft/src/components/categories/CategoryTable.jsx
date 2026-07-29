@@ -6,6 +6,7 @@ function CategoryTable({
   categories,
   onEdit,
   onDelete,
+  onToggleStatus,
 }) {
   return (
     <Card className="overflow-hidden">
@@ -40,6 +41,7 @@ function CategoryTable({
               category={category}
               onEdit={onEdit}
               onDelete={onDelete}
+              onToggleStatus={onToggleStatus}
             />
           ))}
 

@@ -36,6 +36,7 @@ function Products() {
       ).length,
 
   };
+  const hasCategories = categories.length > 0;
   const [values, setValues] = useState({
     nombre: "",
     categoria_id: "",
@@ -180,6 +181,8 @@ function Products() {
 
   const handleCreateProduct = () => {
 
+      if (!hasCategories) return;
+
       setEditingProduct(null);
 
       setValues({
@@ -228,6 +231,18 @@ function Products() {
 
       setDeleteModalOpen(true);
 
+  };
+
+  const handleToggleStatus = async (product) => {
+    try {
+      await updateProduct(product.id, {
+        disponible: product.disponible === false,
+      });
+
+      await loadProducts();
+    } catch (error) {
+      console.error("Error al actualizar estado de platillo:", error.message);
+    }
   };
 
   const cancelDelete = () => {
@@ -290,6 +305,8 @@ function Products() {
         description="Administra todos los platillos disponibles en tu menú."
         buttonText="Nuevo platillo"
         onAction={handleCreateProduct}
+        buttonDisabled={!hasCategories}
+        buttonHint={!hasCategories ? "Primero crea una categoría para agregar platillos." : ""}
       />
 
       <ProductStats
@@ -310,6 +327,7 @@ function Products() {
           products={products}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          onToggleStatus={handleToggleStatus}
       />
 
       <Modal

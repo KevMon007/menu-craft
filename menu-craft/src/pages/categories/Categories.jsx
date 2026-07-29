@@ -23,8 +23,8 @@ function Categories() {
 
   const stats = {
     total: categories.length,
-    active: categories.length,
-    inactive: 0,
+    active: categories.filter((category) => category.activa).length,
+    inactive: categories.filter((category) => !category.activa).length,
     products: 0,
   };
 
@@ -48,10 +48,10 @@ function Categories() {
               alert("El orden debe ser mayor o igual a 0");
               return;
           }
-          const payload = {
-              nombre: values.nombre,
-              orden: Number(values.orden),
-          };
+           const payload = {
+               nombre: values.nombre,
+               orden: Number(values.orden),
+           };
           if (editingCategory) {
               await updateCategory(
                   editingCategory.id,
@@ -97,6 +97,18 @@ function Categories() {
 
   const handleDelete = (category) => {
     setCategoryToDelete(category);
+  };
+
+  const handleToggleStatus = async (category) => {
+    try {
+      await updateCategory(category.id, {
+        activa: category.activa === false,
+      });
+
+      await loadCategories();
+    } catch (error) {
+      console.error("Error al actualizar estado de categoría:", error.message);
+    }
   };
 
   const cancelDelete = () => {
@@ -155,9 +167,10 @@ function Categories() {
       />
 
       <CategoryTable
-          categories={categories}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
+           categories={categories}
+           onEdit={handleEdit}
+           onDelete={handleDelete}
+           onToggleStatus={handleToggleStatus}
       />
 
       <Modal

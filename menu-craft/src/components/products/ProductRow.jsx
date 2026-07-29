@@ -5,7 +5,10 @@ function ProductRow({
   product,
   onEdit,
   onDelete,
+  onToggleStatus,
 }) {
+  const isAvailable = product.disponible !== false;
+
   return (
     <tr className="border-b hover:bg-gray-50 transition">
 
@@ -40,13 +43,13 @@ function ProductRow({
             font-medium
 
             ${
-              product.disponible
+              isAvailable
                 ? "bg-green-100 text-green-700"
                 : "bg-red-100 text-red-700"
             }
           `}
         >
-          {product.disponible
+          {isAvailable
             ? "Disponible"
             : "No disponible"}
         </span>
@@ -55,7 +58,37 @@ function ProductRow({
 
       <td className="px-4 py-4">
 
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
+
+        <button
+            type="button"
+            onClick={() => onToggleStatus(product)}
+            className={`
+              relative
+              h-6
+              w-11
+              rounded-full
+              transition-colors
+              ${isAvailable ? "bg-green-500" : "bg-gray-300"}
+            `}
+            aria-label={isAvailable ? "Marcar platillo como no disponible" : "Marcar platillo como disponible"}
+            title={isAvailable ? "Platillo disponible" : "Platillo no disponible"}
+        >
+            <span
+              className={`
+                absolute
+                left-0.5
+                top-0.5
+                h-5
+                w-5
+                rounded-full
+                bg-white
+                shadow
+                transition-transform
+                ${isAvailable ? "translate-x-5" : "translate-x-0"}
+              `}
+            />
+        </button>
 
         <Button
             variant="ghost"

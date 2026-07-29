@@ -15,7 +15,7 @@ function PublicMenu() {
 
     const restaurantSlug = user?.slug;
     const APP_URL = import.meta.env.VITE_APP_URL || window.location.origin;
-    const menuUrl = restaurantSlug ? `${APP_URL}/menu/${restaurantSlug}` : "";
+    const menuUrl = restaurantSlug ? `${APP_URL}/menu/${restaurantSlug}?source=qr` : "";
 
     const [menu, setMenu] = useState(null);
 

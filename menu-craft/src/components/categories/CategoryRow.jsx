@@ -6,7 +6,10 @@ function CategoryRow({
   category,
   onEdit,
   onDelete,
+  onToggleStatus,
 }) {
+  const isActive = category.activa !== false;
+
   return (
     <tr className="border-b border-gray-100 hover:bg-gray-50">
 
@@ -25,6 +28,36 @@ function CategoryRow({
       <td className="px-6 py-4">
 
         <div className="flex items-center gap-2">
+
+          <button
+            type="button"
+            onClick={() => onToggleStatus(category)}
+            className={`
+              relative
+              h-6
+              w-11
+              rounded-full
+              transition-colors
+              ${isActive ? "bg-green-500" : "bg-gray-300"}
+            `}
+            aria-label={isActive ? "Desactivar categoría" : "Activar categoría"}
+            title={isActive ? "Categoría activa" : "Categoría inactiva"}
+          >
+            <span
+              className={`
+                absolute
+                left-0.5
+                top-0.5
+                h-5
+                w-5
+                rounded-full
+                bg-white
+                shadow
+                transition-transform
+                ${isActive ? "translate-x-5" : "translate-x-0"}
+              `}
+            />
+          </button>
 
           <Button
             variant="ghost"

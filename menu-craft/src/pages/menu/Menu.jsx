@@ -5,6 +5,7 @@
   import PhoneFrame from "../../components/menu/PhoneFrame";
   import MenuView from "../../components/menu/MenuView";
   import { API_BASE_URL } from "../../services/api";
+  import { recordAnalyticsEvent } from "../../services/analyticsService";
 
   function Menu() {
     const { slug } = useParams();
@@ -48,6 +49,33 @@
           }
 
           setMenu(data);
+
+          if (!isPreview) {
+            const source = searchParams.get("source") || "direct";
+            const menuViewKey = `menucraft:${slug}:menu_view`;
+            const qrScanKey = `menucraft:${slug}:qr_scan`;
+
+            if (!sessionStorage.getItem(menuViewKey)) {
+              sessionStorage.setItem(menuViewKey, "true");
+              recordAnalyticsEvent({
+                slug,
+                event_type: "menu_view",
+                metadata: { source },
+              }).catch(() => {
+                sessionStorage.removeItem(menuViewKey);
+              });
+            }
+
+            if (source === "qr" && !sessionStorage.getItem(qrScanKey)) {
+              sessionStorage.setItem(qrScanKey, "true");
+              recordAnalyticsEvent({
+                slug,
+                event_type: "qr_scan",
+              }).catch(() => {
+                sessionStorage.removeItem(qrScanKey);
+              });
+            }
+          }
         } catch {
           setError("Error de red, intenta de nuevo");
         } finally {
@@ -56,7 +84,19 @@
       }
 
       loadMenu();
-    }, [slug]);
+    }, [isPreview, searchParams, slug]);
+
+    const handleSelectCategory = (categoryId) => {
+      setSelectedCategory(categoryId);
+
+      if (!isPreview && categoryId !== "all") {
+        recordAnalyticsEvent({
+          slug,
+          event_type: "category_view",
+          categoria_id: categoryId,
+        }).catch(() => {});
+      }
+    };
 
     if (loading) {
       return (
@@ -149,7 +189,7 @@
                             menu={menu}
                             preview={true}
                             selectedCategory={selectedCategory}
-                            onSelectCategory={setSelectedCategory}
+                            onSelectCategory={handleSelectCategory}
                         />
 
                     </PhoneFrame>
@@ -170,7 +210,7 @@
                 menu={menu}
                 preview={false}
                 selectedCategory={selectedCategory}
-                onSelectCategory={setSelectedCategory}
+                onSelectCategory={handleSelectCategory}
             />
 
         </div>
