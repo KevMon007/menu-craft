@@ -22,7 +22,7 @@ const getCategories = asyncHandler(async (req, res) => {
   const { restaurante_id } = req.usuario;
 
   const { rows } = await pool.query(
-    `SELECT id, nombre, orden
+    `SELECT id, nombre, orden, activa
      FROM categorias
      WHERE restaurante_id = $1
      ORDER BY orden ASC, nombre ASC`,
@@ -35,13 +35,13 @@ const getCategories = asyncHandler(async (req, res) => {
 // ─── POST /api/categories ─────────────────────────────────────────────────────
 // CA-05: al crear, se invalida el caché del restaurante
 const createCategory = asyncHandler(async (req, res) => {
-  const { nombre, orden } = req.body;
+  const { nombre, orden, activa } = req.body;
   const { restaurante_id } = req.usuario;
 
   const { rows } = await pool.query(
-    `INSERT INTO categorias (restaurante_id, nombre, orden)
-     VALUES ($1, $2, $3) RETURNING *`,
-    [restaurante_id, nombre, orden ?? 0]
+    `INSERT INTO categorias (restaurante_id, nombre, orden, activa)
+     VALUES ($1, $2, $3, $4) RETURNING *`,
+    [restaurante_id, nombre, orden ?? 0, activa !== undefined ? activa : true]
   );
 
   // HU-PF-02: invalidar caché (CA-05)
@@ -55,7 +55,7 @@ const createCategory = asyncHandler(async (req, res) => {
 // CA-04: al editar, se invalida el caché del restaurante
 const updateCategory = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { nombre, orden } = req.body;
+  const { nombre, orden, activa } = req.body;
   const { restaurante_id } = req.usuario;
 
   if (Number.isNaN(Number(id))) {
@@ -65,10 +65,11 @@ const updateCategory = asyncHandler(async (req, res) => {
   const { rows } = await pool.query(
     `UPDATE categorias
      SET nombre = COALESCE($1, nombre),
-         orden  = COALESCE($2, orden)
-     WHERE id = $3 AND restaurante_id = $4
+         orden  = COALESCE($2, orden),
+         activa = COALESCE($3, activa)
+     WHERE id = $4 AND restaurante_id = $5
      RETURNING *`,
-    [nombre, orden, id, restaurante_id]
+    [nombre, orden, activa, id, restaurante_id]
   );
 
   if (rows.length === 0) throw new AppError('Categoría no encontrada', 404);

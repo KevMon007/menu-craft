@@ -9,7 +9,7 @@ const AppError = require('../utils/AppError');
 
 // ─── Categorías ─────────────────────────────────────────────────
 const validateCategory = (req, res, next) => {
-  const { nombre, orden } = req.body;
+  const { nombre, orden, activa } = req.body;
   const isCreate = req.method === 'POST';
 
   if (isCreate || nombre !== undefined) {
@@ -28,6 +28,14 @@ const validateCategory = (req, res, next) => {
       return next(new AppError('El campo orden debe ser un entero mayor o igual a 0', 400));
     }
     req.body.orden = ordenNum;
+  }
+
+  if (activa !== undefined && typeof activa !== 'boolean') {
+    if (activa === 'true' || activa === 'false') {
+      req.body.activa = activa === 'true';
+    } else {
+      return next(new AppError('El campo activa debe ser booleano', 400));
+    }
   }
 
   next();

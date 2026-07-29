@@ -47,8 +47,9 @@ const getMenu = asyncHandler(async (req, res) => {
        p.url_foto      AS platillo_url_foto,
        p.disponible    AS platillo_disponible
      FROM restaurantes r
-     LEFT JOIN categorias c
-       ON c.restaurante_id = r.id
+      LEFT JOIN categorias c
+        ON c.restaurante_id = r.id
+       AND c.activa = TRUE
      LEFT JOIN platillos p
        ON p.categoria_id = c.id
       AND p.restaurante_id = r.id

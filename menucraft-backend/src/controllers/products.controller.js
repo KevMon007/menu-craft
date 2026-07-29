@@ -5,6 +5,7 @@
 
 const pool         = require('../config/db');
 const cache        = require('../services/cache.service');
+const { recordAnalyticsEvent } = require('../services/analytics.service');
 const asyncHandler = require('../utils/asyncHandler');
 const AppError     = require('../utils/AppError');
 
@@ -102,6 +103,18 @@ const updateProduct = asyncHandler(async (req, res) => {
     }
   }
 
+  let previousAvailability = null;
+
+  if (disponible === false) {
+    const previous = await pool.query(
+      'SELECT disponible FROM platillos WHERE id = $1 AND restaurante_id = $2',
+      [id, restaurante_id]
+    );
+
+    if (previous.rows.length === 0) throw new AppError('Platillo no encontrado', 404);
+    previousAvailability = previous.rows[0].disponible;
+  }
+
   const { rows } = await pool.query(
     `UPDATE platillos
      SET nombre       = COALESCE($1, nombre),
@@ -121,6 +134,15 @@ const updateProduct = asyncHandler(async (req, res) => {
   // HU-PF-02: invalidar caché (CA-03)
   const slug = await getSlug(restaurante_id);
   cache.invalidate(slug);
+
+  if (previousAvailability === true && disponible === false) {
+    await recordAnalyticsEvent({
+      restaurante_id,
+      event_type: 'product_sold_out',
+      categoria_id: rows[0].categoria_id,
+      platillo_id: rows[0].id,
+    });
+  }
 
   return res.status(200).json(rows[0]);
 });
