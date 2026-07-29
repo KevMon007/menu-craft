@@ -13,7 +13,7 @@ function ProductFilters({
 
   const categoryOptions = categories.map(category => ({
     value: category.id,
-    label: category.name,
+    label: category.nombre,
   }));
 
   const statusOptions = [
@@ -28,8 +28,8 @@ function ProductFilters({
   ];  
 
   return (
-    <Card className="p-4">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <Card className="mb-6 p-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
 
         <div className="md:col-span-2">
 

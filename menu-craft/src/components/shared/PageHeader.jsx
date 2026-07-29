@@ -10,10 +10,10 @@ function PageHeader({
   buttonHint = "",
 }) {
   return (
-    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-8">
+    <div className="flex flex-col gap-5 mb-8 md:flex-row md:items-center md:justify-between md:gap-6">
 
       <div>
-        <h1 className="text-4xl font-bold text-slate-800">
+        <h1 className="text-3xl font-bold text-slate-800 md:text-4xl">
           {title}
         </h1>
 
@@ -23,12 +23,13 @@ function PageHeader({
       </div>
 
       {buttonText && onAction && (
-        <div className="flex flex-col items-start gap-2 md:items-end">
+        <div className="flex w-full flex-col items-stretch gap-2 md:w-auto md:items-end">
 
           <Button
             icon={<Plus size={18} />}
             onClick={onAction}
             disabled={buttonDisabled}
+            className="w-full md:w-auto"
           >
             {buttonText}
           </Button>

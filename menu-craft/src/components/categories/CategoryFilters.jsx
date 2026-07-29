@@ -10,7 +10,7 @@ function CategoryFilters({
   return (
     <Card className="p-5 mb-6">
 
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col gap-4 md:flex-row">
 
         <div className="flex-1">
 
@@ -27,6 +27,7 @@ function CategoryFilters({
           variant="secondary"
           icon={<GripVertical size={18} />}
           onClick={onReorder}
+          className="w-full md:w-auto"
         >
           Arrastrar para reordenar
         </Button>

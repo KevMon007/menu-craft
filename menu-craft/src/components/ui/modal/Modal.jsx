@@ -23,18 +23,20 @@ function Modal({
           inset-0
           z-50
           bg-black/40
-          p-4
+          p-3
+          sm:p-4
           overflow-y-auto
           flex
-          items-center
+          items-start
           justify-center
+          sm:items-center
         ">
 
       <div
         className={`
           w-full
           ${sizes[size]}
-          max-h-[90vh]
+          max-h-[92vh]
           rounded-2xl
           bg-white
           shadow-2xl
@@ -46,7 +48,7 @@ function Modal({
 
         {/* Header */}
 
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-6 py-5">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-4 py-4 sm:px-6 sm:py-5">
 
           <h2 className="text-xl font-semibold">
 
@@ -70,7 +72,8 @@ function Modal({
         <div className="
                 flex-1
                 overflow-y-auto
-                p-6
+                p-4
+                sm:p-6
               ">
 
           {children}
@@ -81,7 +84,7 @@ function Modal({
 
         {footer && (
 
-          <div className="sticky bottom-0 z-10 flex justify-end gap-3 border-t bg-white px-6 py-4">
+          <div className="sticky bottom-0 z-10 flex flex-col-reverse gap-3 border-t bg-white px-4 py-4 sm:flex-row sm:justify-end sm:px-6">
 
             {footer}
 

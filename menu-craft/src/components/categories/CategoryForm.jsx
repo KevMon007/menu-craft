@@ -28,7 +28,7 @@ function CategoryForm({
       />
 
       <Input
-        label="Orden"
+        label="Orden de aparición"
         name="orden"
         type="number"
         value={values.orden}
