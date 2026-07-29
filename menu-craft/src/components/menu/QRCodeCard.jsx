@@ -27,7 +27,7 @@ function QRCodeCard({menuUrl}) {
 
     return (
 
-        <Card className="p-8">
+        <Card className="p-5 md:p-8">
 
             <div className="space-y-4">
 
@@ -54,10 +54,15 @@ function QRCodeCard({menuUrl}) {
                     />
                 </div>
 
+                <p className="text-center text-sm text-gray-500">
+                    Descarga este código para colocarlo en mesas, flyers o redes sociales.
+                </p>
+
                 <div className="flex justify-center">
 
                     <Button
                         onClick={handleDownload}
+                        className="w-full md:w-auto"
                     >
 
                         Descargar QR

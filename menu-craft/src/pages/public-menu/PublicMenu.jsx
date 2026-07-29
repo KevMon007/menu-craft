@@ -131,11 +131,13 @@ function PublicMenu() {
 
             <div
                 className="
-                    mt-8
+                    mt-6
                     grid
                     items-start
-                    gap-6
-                    lg:grid-cols-[380px_1fr]
+                    gap-5
+                    md:mt-8
+                    lg:grid-cols-[360px_1fr]
+                    xl:grid-cols-[380px_1fr]
                 "
             >
 
@@ -143,7 +145,7 @@ function PublicMenu() {
 
                 <div className="space-y-6">
 
-                    <Card className="p-8">
+                    <Card className="p-5 md:p-8">
 
                         <div className="space-y-4">
 
@@ -178,7 +180,7 @@ function PublicMenu() {
 
                             <p className="text-gray-500">
 
-                                Próximamente podrás activar o desactivar la publicación del menú desde este apartado.
+                                Tu menú está disponible para clientes mediante enlace público y código QR.
 
                             </p>
 
@@ -192,11 +194,11 @@ function PublicMenu() {
 
                 {/* Columna derecha */}
 
-                <Card className="h-full p-8">
+                <Card className="h-full p-5 md:p-8">
 
-                    <div className="mb-8 text-center">
+                    <div className="mb-6 text-center md:mb-8">
 
-                        <h2 className="text-2xl font-bold text-slate-900">
+                        <h2 className="text-xl font-bold text-slate-900 md:text-2xl">
 
                             Vista previa del menú
 
@@ -225,10 +227,11 @@ function PublicMenu() {
 
                     </div>
 
-                    <div className="mt-8 flex justify-center">
+                    <div className="mt-6 flex justify-center md:mt-8">
 
                         <Button
                             onClick={handlePreview}
+                            className="w-full sm:w-auto"
                         >
 
                             Abrir en una nueva pestaña
