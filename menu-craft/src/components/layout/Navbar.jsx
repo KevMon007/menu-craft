@@ -1,31 +1,10 @@
-import { useLocation } from "react-router-dom";
-import { Bell } from "lucide-react";
+import { Menu } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
+import logo from "../../assets/Logo.png";
 
-function Navbar() {
-  const location = useLocation();
-
-  const pages = {
-    "/dashboard": {
-      title: "Dashboard",
-      subtitle: "Resumen general de tu restaurante",
-    },
-
-    "/categories": {
-      title: "Categorías",
-      subtitle: "Organiza los platillos de tu menú",
-    },
-
-    "/products": {
-      title: "Platillos",
-      subtitle: "Administra los platillos de tu restaurante",
-    },
-  };
-
-  const currentPage =
-    pages[location.pathname] || {
-        title: "MenuCraft",
-        subtitle: "",
-    };
+function Navbar({ onMenuClick }) {
+  const { user } = useAuth();
+  const restaurantName = user?.nombre_restaurante || "Restaurante";
 
   return (
     <header
@@ -36,95 +15,50 @@ function Navbar() {
         border-[#2E2C47]
         flex
         items-center
-        justify-between
-        px-10
+        justify-center
+        px-4
+        md:px-10
+        relative
     "
 >
 
-    <div>
+    <button
+        type="button"
+        onClick={onMenuClick}
+        className="
+            absolute
+            left-4
+            z-50
+            flex
+            h-10
+            w-10
+            items-center
+            justify-center
+            rounded-lg
+            text-gray-200
+            transition
+            hover:bg-[#2A2843]
+            hover:text-white
+            md:hidden
+        "
+        aria-label="Abrir menú"
+    >
+        <Menu size={24} />
+    </button>
 
-        <h1 className="text-xl font-semibold text-white">
+    <img
+        src={logo}
+        alt="MenuCraft"
+        className="absolute right-4 h-11 w-auto object-contain md:hidden"
+    />
 
-            {currentPage.title}
+    <div className="text-center">
 
-        </h1>
+        <p className="text-2xl font-bold text-white md:text-3xl">
 
-        <p className="text-sm text-gray-300 mt-1">
-
-            {currentPage.subtitle}
+            {restaurantName}
 
         </p>
-
-    </div>
-
-    <div className="flex items-center gap-6">
-
-        <button
-            className="
-                relative
-                rounded-lg
-                p-2
-                text-gray-300
-                hover:bg-[#2A2843]
-                hover:text-white
-                transition
-            "
-        >
-
-            <Bell size={20}/>
-
-            <span
-                className="
-                    absolute
-                    -top-1
-                    -right-1
-                    h-4
-                    w-4
-                    rounded-full
-                    bg-orange-500
-                    text-[10px]
-                    text-white
-                    flex
-                    items-center
-                    justify-center
-                "
-            >
-                3
-            </span>
-
-        </button>
-
-        <div className="text-right">
-
-            <p className="font-medium text-white">
-
-                Restaurante Demo
-
-            </p>
-
-            <p className="text-xs text-gray-400">
-
-                Administrador
-
-            </p>
-
-        </div>
-
-        <div
-            className="
-                h-10
-                w-10
-                rounded-full
-                bg-orange-500
-                text-white
-                flex
-                items-center
-                justify-center
-                font-semibold
-            "
-        >
-            R
-        </div>
 
     </div>
 

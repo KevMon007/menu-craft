@@ -5,34 +5,85 @@ import { LayoutDashboard,
   ChartColumn,
   Settings,
   LogOut,
+  X,
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import logo from "../../assets/Logo.png";
 import { useAuth } from "../../context/AuthContext";
 
-function Sidebar() {
+function Sidebar({ open = false, onClose }) {
   const navigate = useNavigate();
   const { logout } = useAuth();
 
   const handleLogout = () => {
+      const confirmed = window.confirm("¿Seguro que deseas cerrar sesión?");
+
+      if (!confirmed) return;
+
+      onClose?.();
       logout();
       navigate("/login", {
           replace: true,
       });
   };
 
+  const handleNavClick = () => {
+      onClose?.();
+  };
+
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
+    <>
+    {open && (
+      <button
+        type="button"
+        className="fixed inset-0 z-50 bg-black/40 md:hidden"
+        aria-label="Cerrar menú"
+        onClick={onClose}
+      />
+    )}
+
+    <aside
+      className={`
+        fixed
+        inset-y-0
+        left-0
+        z-[60]
+        flex
+        shrink-0
+        w-64
+        flex-col
+        border-r
+        border-gray-200
+        bg-white
+        transform
+        transition-transform
+        duration-300
+        md:static
+        md:pointer-events-auto
+        md:translate-x-0
+        ${open ? "translate-x-0 pointer-events-auto" : "-translate-x-full pointer-events-none"}
+      `}
+    >
 
       {/* Logo */}
       <div
         className="h-20 px-6 flex items-center
+          justify-center
           gap-3
           bg-[#1F1D36]
           border-b
           border-[#2E2C47]
         "
       >
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute right-4 flex h-9 w-9 items-center justify-center rounded-lg text-gray-200 transition hover:bg-[#2A2843] hover:text-white md:hidden"
+          aria-label="Cerrar menú"
+        >
+          <X size={22} />
+        </button>
 
         <img
           src={logo}
@@ -54,6 +105,7 @@ function Sidebar() {
           <li>
             <NavLink
                 to="/dashboard"
+                onClick={handleNavClick}
                 className={({isActive})=>
 
                     `
@@ -81,6 +133,7 @@ function Sidebar() {
           <li>
             <NavLink
               to="/products"
+              onClick={handleNavClick}
               className={({isActive})=>
 
                 `
@@ -108,6 +161,7 @@ function Sidebar() {
           <li>
             <NavLink
               to="/categories"
+              onClick={handleNavClick}
               className={({isActive})=>
 
                 `
@@ -135,6 +189,7 @@ function Sidebar() {
           <li>
             <NavLink
               to="/public-menu"
+              onClick={handleNavClick}
               className={({isActive})=>
 
                 `
@@ -161,7 +216,10 @@ function Sidebar() {
 
           <li>
             <button
-              onClick={() => alert("Próximamente")}
+              onClick={() => {
+                onClose?.();
+                alert("Próximamente");
+              }}
               className="w-full flex items-center gap-3 rounded-lg px-4 py-3 hover:bg-gray-100 transition"
             >
               <ChartColumn size={20} />
@@ -176,7 +234,10 @@ function Sidebar() {
       {/* Parte inferior */}
       <div className="border-t p-4 space-y-2">
 
-        <button className="w-full flex items-center gap-3 rounded-lg px-4 py-3 hover:bg-gray-100 transition">
+        <button
+          onClick={handleNavClick}
+          className="w-full flex items-center gap-3 rounded-lg px-4 py-3 hover:bg-gray-100 transition"
+        >
           <Settings size={20} />
           Configuración
         </button>
@@ -191,6 +252,7 @@ function Sidebar() {
       </div>
 
     </aside>
+    </>
   );
 }
 
